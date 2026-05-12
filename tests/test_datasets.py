@@ -88,6 +88,22 @@ def test_list_yips_combined_filter():
     assert names == ["eac3_aplc_1d"]
 
 
+def test_list_yips_sampling_filter():
+    """Filtering by sampling returns all entries of that regime."""
+    assert datasets.list_yips(sampling="2d") == ["eac1_aavc_2d"]
+    assert len(datasets.list_yips(sampling="1d")) == 18
+
+
+def test_list_yips_three_axis_filter_unique():
+    """Telescope + coronagraph + sampling narrows to exactly one entry."""
+    assert datasets.list_yips(telescope="eac1", coronagraph="aavc", sampling="2d") == [
+        "eac1_aavc_2d"
+    ]
+    assert datasets.list_yips(telescope="eac1", coronagraph="aavc", sampling="1d") == [
+        "eac1_aavc_1d"
+    ]
+
+
 def test_list_yips_unknown_kwarg_raises_typeerror():
     """An unknown filter keyword raises TypeError with a helpful message."""
     with pytest.raises(TypeError, match="unknown filter"):
@@ -162,10 +178,9 @@ def test_fetch_yip_zero_match_query_raises_valueerror():
 
 def test_fetch_yip_multi_match_query_raises_valueerror():
     """A structured query that matches multiple entries raises ValueError."""
-    # Filtering by telescope alone matches every coronagraph and sampling
-    # within that telescope (7 entries for eac1: 6 1D + 1 2D).
+    # eac1 + aavc matches both _1d and _2d; sampling must also be passed.
     with pytest.raises(ValueError, match="multiple"):
-        datasets.fetch_yip(telescope="eac1")
+        datasets.fetch_yip(telescope="eac1", coronagraph="aavc")
 
 
 def test_fetch_yip_reserved_entry_raises_lookuperror():

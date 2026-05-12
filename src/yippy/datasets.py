@@ -159,6 +159,19 @@ CATALOG: dict[str, dict[str, Any]] = {
 }
 
 
+# Inject the sampling regime as a derived field on each catalog entry, parsed
+# from the key suffix. Keeps the manual CATALOG above tidy while exposing
+# sampling as a filterable axis in list_yips / fetch_yip.
+for _name, _meta in CATALOG.items():
+    if _name.endswith("_1d"):
+        _meta["sampling"] = "1d"
+    elif _name.endswith("_2d"):
+        _meta["sampling"] = "2d"
+    else:
+        raise RuntimeError(f"Catalog key {_name!r} must end with `_1d` or `_2d`")
+del _name, _meta
+
+
 # Pooch instance; registry holds only entries whose md5 is known at import time.
 _POOCH = pooch.create(
     path=pooch.os_cache("yippy"),
@@ -179,12 +192,15 @@ def fetch_yip(
     *,
     telescope: str | None = None,
     coronagraph: str | None = None,
+    sampling: str | None = None,
 ) -> str:
     """Download a YIP archive (if not cached), unpack, and return its path.
 
-    Pass either ``name`` (flat: ``"eac1_aavc"``) OR keyword filters
-    (structured: ``telescope="eac1", coronagraph="aavc"``). The keyword
-    form must resolve to exactly one catalog entry.
+    Pass either ``name`` (flat: ``"eac1_aavc_2d"``) OR keyword filters
+    (structured: ``telescope="eac1", coronagraph="aavc", sampling="2d"``).
+    The keyword form must resolve to exactly one catalog entry; pass
+    ``sampling`` whenever a ``(telescope, coronagraph)`` pair has both
+    1D and 2D variants.
 
     Raises:
         TypeError: if both ``name`` and filters are passed (or neither).
@@ -198,6 +214,8 @@ def fetch_yip(
         filters["telescope"] = telescope
     if coronagraph is not None:
         filters["coronagraph"] = coronagraph
+    if sampling is not None:
+        filters["sampling"] = sampling
 
     if name is not None and filters:
         raise TypeError("Pass either `name` or filter kwargs, not both.")
@@ -247,7 +265,7 @@ def fetch_yip(
     return str(sample_path.parent)
 
 
-_FILTERABLE_FIELDS = frozenset({"telescope", "coronagraph"})
+_FILTERABLE_FIELDS = frozenset({"telescope", "coronagraph", "sampling"})
 
 
 def list_yips(**filters: str) -> list[str]:

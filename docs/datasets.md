@@ -35,9 +35,9 @@ from yippy import fetch_yip, Coronagraph
 # Flat name (best when you already know it)
 path = fetch_yip("eac1_aavc_2d")
 
-# Structured query: telescope + coronagraph still narrows by family;
-# when both 1D and 2D exist for the same family you must pass `name=`.
-path = fetch_yip(telescope="eac1", coronagraph="optimal_order_6")
+# Structured query (must resolve to a single entry). Pass sampling
+# whenever a (telescope, coronagraph) pair has both 1D and 2D variants.
+path = fetch_yip(telescope="eac1", coronagraph="aavc", sampling="2d")
 
 # Convenient: top-level re-exports
 import yippy
@@ -59,6 +59,7 @@ from yippy import list_yips, yip_exists, yip_info
 # All names matching filters
 list_yips(telescope="eac1")          # all eac1 variants (1D + 2D)
 list_yips(coronagraph="optimal_order_6")  # one per telescope
+list_yips(sampling="2d")             # all 2D YIPs
 
 # Check whether a name is published
 yip_exists("eac1_aavc_2d")  # True (post-v1)
