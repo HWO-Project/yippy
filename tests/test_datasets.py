@@ -174,33 +174,6 @@ def test_fetch_yip_reserved_entry_raises_lookuperror():
         datasets.fetch_yip("eac3_spc_1d")
 
 
-def test_fetch_yip_calls_pooch_for_published(monkeypatch, tmp_path):
-    """Verify the function resolves the catalog correctly and calls pooch.fetch.
-
-    The pooch call itself is mocked.
-    """
-    from pooch import Unzip
-
-    called = {}
-
-    def fake_fetch(filename, processor=None):
-        called["filename"] = filename
-        called["processor"] = processor
-        # pooch.fetch with Unzip returns a list of paths
-        return [str(tmp_path / filename / "offax_psf.fits")]
-
-    # Pretend eac1_aavc_2d has been published
-    monkeypatch.setitem(datasets.CATALOG["eac1_aavc_2d"], "md5", "md5:" + "a" * 32)
-    monkeypatch.setattr(datasets._POOCH, "fetch", fake_fetch, raising=False)
-    # Also need to add to pooch registry so it accepts the fetch call
-    datasets._POOCH.registry["eac1_aavc_2d.zip"] = "md5:" + "a" * 32
-
-    path = datasets.fetch_yip("eac1_aavc_2d")
-    assert called["filename"] == "eac1_aavc_2d.zip"
-    assert isinstance(called["processor"], Unzip)
-    assert path.endswith("eac1_aavc_2d")
-
-
 @pytest.mark.network
 @pytest.mark.skipif(
     datasets.ZENODO_DOI.endswith("PLACEHOLDER"),

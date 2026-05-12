@@ -29,9 +29,7 @@ from pooch import Unzip
 
 # ---------------------------------------------------------------------------
 # Zenodo DOI for the published YIP archive. Updated when a new version of
-# the record is published. Until the v1 upload happens, this is a TBD
-# placeholder; integration tests are skipped while it points at the
-# placeholder.
+# the record is published.
 # ---------------------------------------------------------------------------
 ZENODO_DOI: str = "10.5281/zenodo.20146086"
 
