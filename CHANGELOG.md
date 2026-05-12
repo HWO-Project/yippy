@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.5.0](https://github.com/CoreySpohn/yippy/compare/v2.4.0...v2.5.0) (2026-05-12)
+
+
+### Features
+
+* **datasets:** add 1d/2d sampling suffix; include 2D AAVC YIP ([f36f50d](https://github.com/CoreySpohn/yippy/commit/f36f50d4c3ba23bcd59c525e3dadcf32e1f37b98))
+* **datasets:** add designer attribution field to CATALOG ([990e75d](https://github.com/CoreySpohn/yippy/commit/990e75d4d591b922fd68021d71713459367b037f))
+* **datasets:** add Zenodo packaging script, populate catalog, docs ([1d4524d](https://github.com/CoreySpohn/yippy/commit/1d4524d26c62006d0fd6699f9cb835df8087c443))
+* **datasets:** replace fetch_coronagraph with query-style YIP catalog ([f8aa2fc](https://github.com/CoreySpohn/yippy/commit/f8aa2fc73ff1a141bdbd2f72494d8535d5c79387))
+* **datasets:** scaffold YIP catalog and remove fetch_coronagraph ([d822759](https://github.com/CoreySpohn/yippy/commit/d8227594c26a5c59c393812e93126e023bd9e524))
+* **datasets:** wire up Zenodo DOI for v1 YIP archive ([d903c89](https://github.com/CoreySpohn/yippy/commit/d903c89e95b88ce12d7aabf7aebd8e5e65840cdb))
+* Switch YIP hosting to Zenodo instead of hosting in the repo ([7e8a3e0](https://github.com/CoreySpohn/yippy/commit/7e8a3e0860c857017236d4414cdcac90991728da))
+
 ## [2.4.0](https://github.com/CoreySpohn/yippy/compare/v2.3.2...v2.4.0) (2026-04-29)
 
 
