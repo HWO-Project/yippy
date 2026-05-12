@@ -33,7 +33,7 @@ from pooch import Unzip
 # placeholder; integration tests are skipped while it points at the
 # placeholder.
 # ---------------------------------------------------------------------------
-ZENODO_DOI: str = "10.5281/zenodo.PLACEHOLDER"
+ZENODO_DOI: str = "10.5281/zenodo.20146086"
 
 
 # ---------------------------------------------------------------------------
