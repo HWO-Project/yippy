@@ -69,11 +69,15 @@ def _generate_yip_catalog_table(app):
     sys.path.insert(0, str(repo_root / "src"))
     from yippy.datasets import CATALOG
 
-    rows = ["| YIP name | Telescope | Coronagraph | Status |", "|---|---|---|---|"]
+    rows = [
+        "| YIP name | Telescope | Coronagraph | Designer | Status |",
+        "|---|---|---|---|---|",
+    ]
     for name, meta in sorted(CATALOG.items()):
         status = "published" if meta["md5"] is not None else "reserved"
         rows.append(
-            f"| `{name}` | `{meta['telescope']}` | `{meta['coronagraph']}` | {status} |"
+            f"| `{name}` | `{meta['telescope']}` | `{meta['coronagraph']}` | "
+            f"{meta['designer']} | {status} |"
         )
 
     out_dir = Path(__file__).parent / "_generated"

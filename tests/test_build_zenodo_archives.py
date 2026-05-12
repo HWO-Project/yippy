@@ -141,6 +141,8 @@ def test_emit_catalog_block_is_valid_python(tmp_path):
     exec(block, ns)
     parsed = ns["CATALOG"]
     assert parsed["eac1_aavc"]["md5"] == "md5:" + "a" * 32
+    assert parsed["eac1_aavc"]["designer"] == "Susan Redmond"
     assert parsed["eac1_spc"]["md5"] is None
+    assert parsed["eac1_spc"]["designer"] == "Jessica Gersh-Range"
     # Must include all 18 catalog entries even when only some updated
     assert len(parsed) == 18

@@ -25,7 +25,7 @@ def test_catalog_keys_match_telescope_coronagraph():
 
 def test_catalog_required_fields():
     """Every entry must carry telescope, coronagraph, and md5 fields."""
-    required = {"telescope", "coronagraph", "md5"}
+    required = {"telescope", "coronagraph", "designer", "md5"}
     for name, meta in datasets.CATALOG.items():
         missing = required - set(meta)
         assert not missing, f"{name!r} missing fields: {missing}"

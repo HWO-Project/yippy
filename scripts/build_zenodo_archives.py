@@ -157,7 +157,8 @@ def format_catalog_block(updates: dict[str, str | None]) -> str:
         md5_repr = "None" if md5 is None else repr(md5)
         lines.append(
             f'    {name!r}: {{"telescope": {meta["telescope"]!r}, '
-            f'"coronagraph": {meta["coronagraph"]!r}, "md5": {md5_repr}}},'
+            f'"coronagraph": {meta["coronagraph"]!r}, '
+            f'"designer": {meta["designer"]!r}, "md5": {md5_repr}}},'
         )
     lines.append("}")
     return "\n".join(lines)
