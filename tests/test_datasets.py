@@ -204,3 +204,32 @@ def test_fetch_yip_calls_pooch_for_published(monkeypatch, tmp_path):
     assert called["filename"] == "eac1_aavc.zip"
     assert isinstance(called["processor"], Unzip)
     assert path.endswith("eac1_aavc")
+
+
+@pytest.mark.network
+@pytest.mark.skipif(
+    datasets.ZENODO_DOI.endswith("PLACEHOLDER"),
+    reason="Zenodo DOI not yet set; v1 release pending.",
+)
+@pytest.mark.skipif(
+    datasets.CATALOG["eac1_aavc"]["md5"] is None,
+    reason="eac1_aavc md5 not yet populated; run Task 10.",
+)
+def test_fetch_smallest_yip_loads_as_coronagraph(tmp_path):
+    """End-to-end: pull the smallest publishable YIP and load yippy.Coronagraph."""
+    from pathlib import Path
+
+    from yippy import Coronagraph
+
+    yip_path = Path(datasets.fetch_yip("eac1_aavc"))
+    for required in (
+        "offax_psf.fits",
+        "offax_psf_offset_list.fits",
+        "stellar_intens.fits",
+        "stellar_intens_diam_list.fits",
+        "sky_trans.fits",
+    ):
+        assert (yip_path / required).is_file(), f"missing {required}"
+
+    coro = Coronagraph(yip_path)
+    assert coro is not None

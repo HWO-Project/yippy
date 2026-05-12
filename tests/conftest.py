@@ -3,11 +3,11 @@
 import pytest
 
 from yippy import Coronagraph
-from yippy.datasets import CATALOG
+from yippy.datasets import CATALOG, ZENODO_DOI
 
 requires_published_yip = pytest.mark.skipif(
-    CATALOG["eac1_aavc"]["md5"] is None,
-    reason="YIP not yet published; run Task 10 (packaging) and update CATALOG.",
+    CATALOG["eac1_aavc"]["md5"] is None or ZENODO_DOI.endswith("PLACEHOLDER"),
+    reason="YIP not yet fetchable: md5 unset or Zenodo DOI is placeholder.",
 )
 
 

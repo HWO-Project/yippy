@@ -55,3 +55,31 @@ source_suffix = {
 }
 nb_execution_mode = "off"
 nb_execution_timeout = 300
+
+
+def _generate_yip_catalog_table(app):
+    """Pre-build hook: write docs/_generated/yip_catalog.md from CATALOG.
+
+    Keeps the public docs page in lockstep with the catalog source.
+    """
+    import sys
+    from pathlib import Path
+
+    repo_root = Path(__file__).resolve().parent.parent
+    sys.path.insert(0, str(repo_root / "src"))
+    from yippy.datasets import CATALOG
+
+    rows = ["| YIP name | Telescope | Coronagraph | Status |", "|---|---|---|---|"]
+    for name, meta in sorted(CATALOG.items()):
+        status = "published" if meta["md5"] is not None else "reserved"
+        rows.append(
+            f"| `{name}` | `{meta['telescope']}` | `{meta['coronagraph']}` | {status} |"
+        )
+
+    out_dir = Path(__file__).parent / "_generated"
+    out_dir.mkdir(exist_ok=True)
+    (out_dir / "yip_catalog.md").write_text("\n".join(rows) + "\n")
+
+
+def setup(app):
+    app.connect("builder-inited", _generate_yip_catalog_table)

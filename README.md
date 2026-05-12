@@ -29,11 +29,10 @@ pip install yippy
 ## Quick Start
 
 ```python
-from yippy import Coronagraph
-from yippy.datasets import fetch_coronagraph
+from yippy import Coronagraph, fetch_yip
 
 # Download an example YIP (cached after first call)
-yip_path = fetch_coronagraph()
+yip_path = fetch_yip("eac1_aavc")
 
 # Create a coronagraph object
 coro = Coronagraph(yip_path)
@@ -151,10 +150,10 @@ all oversampled pixels exceeding `ratio * peak`. This matches AYO's
 yippy ships with `pooch`-managed example data for testing and notebooks:
 
 ```python
-from yippy.datasets import fetch_coronagraph
+from yippy import fetch_yip
 
 # Downloads and caches an example apodized vortex coronagraph
-yip_path = fetch_coronagraph()  # "eac1_aavc_512"
+yip_path = fetch_yip("eac1_aavc")
 ```
 
 ## Units

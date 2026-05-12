@@ -41,49 +41,73 @@ ZENODO_DOI: str = "10.5281/zenodo.PLACEHOLDER"
 # ---------------------------------------------------------------------------
 CATALOG: dict[str, dict[str, Any]] = {
     # EAC1
-    "eac1_aavc": {"telescope": "eac1", "coronagraph": "aavc", "md5": None},
-    "eac1_spc": {"telescope": "eac1", "coronagraph": "spc", "md5": None},
-    "eac1_lcppc_v1": {"telescope": "eac1", "coronagraph": "lcppc_v1", "md5": None},
+    "eac1_aavc": {
+        "telescope": "eac1",
+        "coronagraph": "aavc",
+        "md5": "md5:94990f0f8479cf3e67238c780ad45f1e",
+    },
+    "eac1_spc": {
+        "telescope": "eac1",
+        "coronagraph": "spc",
+        "md5": "md5:f809f71380fa76799418fb39f166cc4c",
+    },
+    "eac1_lcppc_v1": {
+        "telescope": "eac1",
+        "coronagraph": "lcppc_v1",
+        "md5": "md5:78f63522985d8c68a8fe2b47fd41593c",
+    },
     "eac1_optimal_order_6": {
         "telescope": "eac1",
         "coronagraph": "optimal_order_6",
-        "md5": None,
+        "md5": "md5:fc11a871ee8bda2a58d18f0b99fa7fb7",
     },
     "eac1_aplc": {"telescope": "eac1", "coronagraph": "aplc", "md5": None},
     "eac1_pic_400channels_order6": {
         "telescope": "eac1",
         "coronagraph": "pic_400channels_order6",
-        "md5": None,
+        "md5": "md5:54ea28afdb8eb7b6f79911ea6521b48d",
     },
     # EAC2
     "eac2_aavc": {"telescope": "eac2", "coronagraph": "aavc", "md5": None},
     "eac2_spc": {"telescope": "eac2", "coronagraph": "spc", "md5": None},
-    "eac2_lcppc_v1": {"telescope": "eac2", "coronagraph": "lcppc_v1", "md5": None},
+    "eac2_lcppc_v1": {
+        "telescope": "eac2",
+        "coronagraph": "lcppc_v1",
+        "md5": "md5:ba12b230181a3e9acfd2e46104a4e920",
+    },
     "eac2_optimal_order_6": {
         "telescope": "eac2",
         "coronagraph": "optimal_order_6",
-        "md5": None,
+        "md5": "md5:6535229d5c95603a8251032b1dee68a3",
     },
     "eac2_aplc": {"telescope": "eac2", "coronagraph": "aplc", "md5": None},
     "eac2_pic_400channels_order6": {
         "telescope": "eac2",
         "coronagraph": "pic_400channels_order6",
-        "md5": None,
+        "md5": "md5:ee52696c13f38c9852b83df90843c357",
     },
     # EAC3
     "eac3_aavc": {"telescope": "eac3", "coronagraph": "aavc", "md5": None},
     "eac3_spc": {"telescope": "eac3", "coronagraph": "spc", "md5": None},
-    "eac3_lcppc_v1": {"telescope": "eac3", "coronagraph": "lcppc_v1", "md5": None},
+    "eac3_lcppc_v1": {
+        "telescope": "eac3",
+        "coronagraph": "lcppc_v1",
+        "md5": "md5:cf00d0a0d023c7dd10f377074507988d",
+    },
     "eac3_optimal_order_6": {
         "telescope": "eac3",
         "coronagraph": "optimal_order_6",
-        "md5": None,
+        "md5": "md5:56e6d825802f043a7f37336c4627447b",
     },
-    "eac3_aplc": {"telescope": "eac3", "coronagraph": "aplc", "md5": None},
+    "eac3_aplc": {
+        "telescope": "eac3",
+        "coronagraph": "aplc",
+        "md5": "md5:01beaa6fb2db0d276f4a070cf8f4e41d",
+    },
     "eac3_pic_400channels_order6": {
         "telescope": "eac3",
         "coronagraph": "pic_400channels_order6",
-        "md5": None,
+        "md5": "md5:3fdaa4b095b592e08cf23c5e46bd7a84",
     },
 }
 

@@ -70,6 +70,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/_generated/
 
 # PyBuilder
 .pybuilder/
@@ -162,7 +163,11 @@ cython_debug/
 .DS_Store
 input/
 output/
-scripts/
+scripts/*
+!scripts/build_zenodo_archives.py
+
+# Build artifacts from scripts/build_zenodo_archives.py (zips for Zenodo upload)
+dist/
 *.png
 !docs/_static/fig_az_avg_comparison.png
 !docs/_static/fig_benchmarking_all_metrics.png
