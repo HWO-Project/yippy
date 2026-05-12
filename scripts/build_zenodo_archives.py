@@ -184,7 +184,15 @@ def main() -> int:
     updates: dict[str, str | None] = {}
     publishable = 0
     reserved = 0
+    skipped = 0
     for name, meta in CATALOG.items():
+        # Only the 1D YIPs come from the for_rus/ tree. 2D YIPs (and any
+        # other out-of-band entries) are packaged separately and we leave
+        # their existing md5 alone.
+        if not name.endswith("_1d"):
+            print(f"  SKIP      {name}  (not a 1D entry; packaged separately)")
+            skipped += 1
+            continue
         src = locate_source_dir(
             args.source,
             telescope=meta["telescope"],
@@ -201,7 +209,7 @@ def main() -> int:
         publishable += 1
 
     print()
-    print(f"# {publishable} publishable, {reserved} reserved")
+    print(f"# {publishable} publishable, {reserved} reserved, {skipped} skipped")
     print()
     print(format_catalog_block(updates))
     return 0

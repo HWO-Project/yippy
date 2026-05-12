@@ -40,116 +40,123 @@ ZENODO_DOI: str = "10.5281/zenodo.PLACEHOLDER"
 # Catalog
 # ---------------------------------------------------------------------------
 CATALOG: dict[str, dict[str, Any]] = {
-    # EAC1
-    "eac1_aavc": {
+    # EAC1 (1D)
+    "eac1_aavc_1d": {
         "telescope": "eac1",
         "coronagraph": "aavc",
         "designer": "Susan Redmond",
-        "md5": "md5:94990f0f8479cf3e67238c780ad45f1e",
+        "md5": "md5:5cb5fe8bd29c8f4d2abf47b259535061",
     },
-    "eac1_spc": {
+    "eac1_spc_1d": {
         "telescope": "eac1",
         "coronagraph": "spc",
         "designer": "Jessica Gersh-Range",
-        "md5": "md5:f809f71380fa76799418fb39f166cc4c",
+        "md5": "md5:1b70ddebb8b89226b206c6d08817542d",
     },
-    "eac1_lcppc_v1": {
+    "eac1_lcppc_v1_1d": {
         "telescope": "eac1",
         "coronagraph": "lcppc_v1",
         "designer": "David Doelman",
-        "md5": "md5:78f63522985d8c68a8fe2b47fd41593c",
+        "md5": "md5:189101a21fdffe7e2a013712f34da83b",
     },
-    "eac1_optimal_order_6": {
+    "eac1_optimal_order_6_1d": {
         "telescope": "eac1",
         "coronagraph": "optimal_order_6",
         "designer": "Rus Belikov",
-        "md5": "md5:fc11a871ee8bda2a58d18f0b99fa7fb7",
+        "md5": "md5:df52540008a0e85467720ec91c3a84b8",
     },
-    "eac1_aplc": {
+    "eac1_aplc_1d": {
         "telescope": "eac1",
         "coronagraph": "aplc",
         "designer": "Bryony Nickson",
         "md5": None,
     },
-    "eac1_pic_400channels_order6": {
+    "eac1_pic_400channels_order6_1d": {
         "telescope": "eac1",
         "coronagraph": "pic_400channels_order6",
         "designer": "Dan Sirbu",
-        "md5": "md5:54ea28afdb8eb7b6f79911ea6521b48d",
+        "md5": "md5:b90c4600fc32edfc6007c7fff2642036",
     },
-    # EAC2
-    "eac2_aavc": {
+    # EAC2 (1D)
+    "eac2_aavc_1d": {
         "telescope": "eac2",
         "coronagraph": "aavc",
         "designer": "Susan Redmond",
         "md5": None,
     },
-    "eac2_spc": {
+    "eac2_spc_1d": {
         "telescope": "eac2",
         "coronagraph": "spc",
         "designer": "Jessica Gersh-Range",
         "md5": None,
     },
-    "eac2_lcppc_v1": {
+    "eac2_lcppc_v1_1d": {
         "telescope": "eac2",
         "coronagraph": "lcppc_v1",
         "designer": "David Doelman",
-        "md5": "md5:ba12b230181a3e9acfd2e46104a4e920",
+        "md5": "md5:80cfbad3f63eb7c49b467342d19e32cc",
     },
-    "eac2_optimal_order_6": {
+    "eac2_optimal_order_6_1d": {
         "telescope": "eac2",
         "coronagraph": "optimal_order_6",
         "designer": "Rus Belikov",
-        "md5": "md5:6535229d5c95603a8251032b1dee68a3",
+        "md5": "md5:579c80c9e3f7f52a0ebd18858485fa4b",
     },
-    "eac2_aplc": {
+    "eac2_aplc_1d": {
         "telescope": "eac2",
         "coronagraph": "aplc",
         "designer": "Bryony Nickson",
         "md5": None,
     },
-    "eac2_pic_400channels_order6": {
+    "eac2_pic_400channels_order6_1d": {
         "telescope": "eac2",
         "coronagraph": "pic_400channels_order6",
         "designer": "Dan Sirbu",
-        "md5": "md5:ee52696c13f38c9852b83df90843c357",
+        "md5": "md5:384c79d3ac1777c0c2680348cb84fcce",
     },
-    # EAC3
-    "eac3_aavc": {
+    # EAC3 (1D)
+    "eac3_aavc_1d": {
         "telescope": "eac3",
         "coronagraph": "aavc",
         "designer": "Susan Redmond",
         "md5": None,
     },
-    "eac3_spc": {
+    "eac3_spc_1d": {
         "telescope": "eac3",
         "coronagraph": "spc",
         "designer": "Jessica Gersh-Range",
         "md5": None,
     },
-    "eac3_lcppc_v1": {
+    "eac3_lcppc_v1_1d": {
         "telescope": "eac3",
         "coronagraph": "lcppc_v1",
         "designer": "David Doelman",
-        "md5": "md5:cf00d0a0d023c7dd10f377074507988d",
+        "md5": "md5:dd97beca90e8a1f47c0efe8490d40f27",
     },
-    "eac3_optimal_order_6": {
+    "eac3_optimal_order_6_1d": {
         "telescope": "eac3",
         "coronagraph": "optimal_order_6",
         "designer": "Rus Belikov",
-        "md5": "md5:56e6d825802f043a7f37336c4627447b",
+        "md5": "md5:7c7a76d324f5b62ba2f0523534dd8076",
     },
-    "eac3_aplc": {
+    "eac3_aplc_1d": {
         "telescope": "eac3",
         "coronagraph": "aplc",
         "designer": "Bryony Nickson",
-        "md5": "md5:01beaa6fb2db0d276f4a070cf8f4e41d",
+        "md5": "md5:2c880190f36d92d7d4c5785a9ebf994a",
     },
-    "eac3_pic_400channels_order6": {
+    "eac3_pic_400channels_order6_1d": {
         "telescope": "eac3",
         "coronagraph": "pic_400channels_order6",
         "designer": "Dan Sirbu",
-        "md5": "md5:3fdaa4b095b592e08cf23c5e46bd7a84",
+        "md5": "md5:5b530b87c2ee6020118455789ac4328e",
+    },
+    # EAC1 (2D)
+    "eac1_aavc_2d": {
+        "telescope": "eac1",
+        "coronagraph": "aavc",
+        "designer": "Susan Redmond",
+        "md5": "md5:1f4892faff18e55cbec9781a055bea4d",
     },
 }
 

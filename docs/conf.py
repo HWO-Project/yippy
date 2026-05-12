@@ -86,4 +86,5 @@ def _generate_yip_catalog_table(app):
 
 
 def setup(app):
+    """Register Sphinx hooks for yippy's docs build."""
     app.connect("builder-inited", _generate_yip_catalog_table)

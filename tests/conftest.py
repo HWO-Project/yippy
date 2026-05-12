@@ -6,7 +6,7 @@ from yippy import Coronagraph
 from yippy.datasets import CATALOG, ZENODO_DOI
 
 requires_published_yip = pytest.mark.skipif(
-    CATALOG["eac1_aavc"]["md5"] is None or ZENODO_DOI.endswith("PLACEHOLDER"),
+    CATALOG["eac1_aavc_2d"]["md5"] is None or ZENODO_DOI.endswith("PLACEHOLDER"),
     reason="YIP not yet fetchable: md5 unset or Zenodo DOI is placeholder.",
 )
 
@@ -16,7 +16,7 @@ def coro():
     """Session-scoped real coronagraph loaded from yippy's pooch registry."""
     from yippy import fetch_yip
 
-    yip_path = fetch_yip("eac1_aavc")
+    yip_path = fetch_yip("eac1_aavc_2d")
     return Coronagraph(yip_path)
 
 

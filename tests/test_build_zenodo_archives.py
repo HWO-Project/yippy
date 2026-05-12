@@ -92,8 +92,8 @@ def test_stage_files_excludes_cache(tmp_path):
     src = tmp_path / "src" / "EAC1" / "AAVC"
     _make_fake_yip(src)
     staged = tmp_path / "staged"
-    bza.stage_yip(src, staged, name="eac1_aavc")
-    files = sorted(p.name for p in (staged / "eac1_aavc").iterdir())
+    bza.stage_yip(src, staged, name="eac1_aavc_1d")
+    files = sorted(p.name for p in (staged / "eac1_aavc_1d").iterdir())
     assert files == sorted(CANONICAL_FILES)
 
 
@@ -102,11 +102,11 @@ def test_build_archive_zip_contains_only_canonical(tmp_path):
     src = tmp_path / "src" / "EAC1" / "AAVC"
     _make_fake_yip(src)
     out = tmp_path / "dist"
-    zip_path, _ = bza.build_archive(src, out, name="eac1_aavc")
-    assert zip_path == out / "eac1_aavc.zip"
+    zip_path, _ = bza.build_archive(src, out, name="eac1_aavc_1d")
+    assert zip_path == out / "eac1_aavc_1d.zip"
     with zipfile.ZipFile(zip_path) as zf:
         names = sorted(zf.namelist())
-    expected = sorted(f"eac1_aavc/{f}" for f in CANONICAL_FILES)
+    expected = sorted(f"eac1_aavc_1d/{f}" for f in CANONICAL_FILES)
     assert names == expected
 
 
@@ -114,7 +114,7 @@ def test_build_archive_md5_is_hex32(tmp_path):
     """build_archive returns a 'md5:' + 32-hex-char string."""
     src = tmp_path / "src" / "EAC1" / "AAVC"
     _make_fake_yip(src)
-    _, md5 = bza.build_archive(src, tmp_path / "dist", name="eac1_aavc")
+    _, md5 = bza.build_archive(src, tmp_path / "dist", name="eac1_aavc_1d")
     assert md5.startswith("md5:")
     assert len(md5) == len("md5:") + 32
     assert all(c in "0123456789abcdef" for c in md5[4:])
@@ -124,25 +124,26 @@ def test_build_archive_is_deterministic(tmp_path):
     """Running twice produces the same md5 (same file timestamps inside zip)."""
     src = tmp_path / "src" / "EAC1" / "AAVC"
     _make_fake_yip(src)
-    _, md5a = bza.build_archive(src, tmp_path / "dist1", name="eac1_aavc")
-    _, md5b = bza.build_archive(src, tmp_path / "dist2", name="eac1_aavc")
+    _, md5a = bza.build_archive(src, tmp_path / "dist1", name="eac1_aavc_1d")
+    _, md5b = bza.build_archive(src, tmp_path / "dist2", name="eac1_aavc_1d")
     assert md5a == md5b
 
 
 def test_emit_catalog_block_is_valid_python(tmp_path):
     """The printed CATALOG block must be re-parseable as a Python dict."""
     updates = {
-        "eac1_aavc": "md5:" + "a" * 32,
-        "eac1_spc": None,  # reserved
+        "eac1_aavc_1d": "md5:" + "a" * 32,
+        "eac1_spc_1d": None,  # reserved
     }
     block = bza.format_catalog_block(updates)
     # Confirm Python can evaluate it
     ns: dict = {}
     exec(block, ns)
     parsed = ns["CATALOG"]
-    assert parsed["eac1_aavc"]["md5"] == "md5:" + "a" * 32
-    assert parsed["eac1_aavc"]["designer"] == "Susan Redmond"
-    assert parsed["eac1_spc"]["md5"] is None
-    assert parsed["eac1_spc"]["designer"] == "Jessica Gersh-Range"
-    # Must include all 18 catalog entries even when only some updated
-    assert len(parsed) == 18
+    assert parsed["eac1_aavc_1d"]["md5"] == "md5:" + "a" * 32
+    assert parsed["eac1_aavc_1d"]["designer"] == "Susan Redmond"
+    assert parsed["eac1_spc_1d"]["md5"] is None
+    assert parsed["eac1_spc_1d"]["designer"] == "Jessica Gersh-Range"
+    # Must include all 19 catalog entries (18 1D + 1 2D) even when only
+    # some are updated.
+    assert len(parsed) == 19
