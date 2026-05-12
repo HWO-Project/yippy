@@ -8,6 +8,7 @@
 :maxdepth: 2
 :caption: Getting Started
 examples/Basics.ipynb
+datasets.md
 ```
 
 ```{toctree}

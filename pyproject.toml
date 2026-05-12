@@ -63,3 +63,9 @@ select = ["B", "D", "E", "F", "I", "UP", "RUF"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.pytest.ini_options]
+markers = [
+    "network: requires network access (skipped by default in CI)",
+]
+addopts = "-m 'not network'"

@@ -10,6 +10,7 @@ hwoutils/tests/test_fft.py.
 
 import numpy as np
 import pytest
+from conftest import requires_published_yip
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -41,6 +42,7 @@ def grid_offsets(offax):
 # ---------------------------------------------------------------------------
 
 
+@requires_published_yip
 class TestFluxConservation:
     """Verify total flux is preserved through interpolation."""
 
@@ -93,6 +95,7 @@ class TestFluxConservation:
 # ---------------------------------------------------------------------------
 
 
+@requires_published_yip
 class TestDarkHoleContrast:
     """Verify interpolation does not inject artifacts into the dark hole."""
 

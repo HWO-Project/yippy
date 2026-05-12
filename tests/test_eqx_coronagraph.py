@@ -8,6 +8,7 @@ scipy-based Coronagraph interpolators.
 import jax.numpy as jnp
 import numpy as np
 import pytest
+from conftest import requires_published_yip
 from scipy.interpolate import make_interp_spline
 
 from yippy.eqx_coronagraph import _scipy_to_interpax
@@ -82,6 +83,7 @@ class TestScipyToInterpax:
 # =============================================================================
 
 
+@requires_published_yip
 class TestEqxCoronagraphInterpolation:
     """Compare EqxCoronagraph to Coronagraph scipy interpolators."""
 
