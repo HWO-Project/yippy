@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.1](https://github.com/CoreySpohn/yippy/compare/v2.5.0...v2.5.1) (2026-05-12)
+
+
+### Bug Fixes
+
+* **datasets:** add sampling filter to disambiguate same-family 1D/2D YIPs ([33dbaed](https://github.com/CoreySpohn/yippy/commit/33dbaed84cddf548ff19998d9a420cdf25ccc769))
+
 ## [2.5.0](https://github.com/CoreySpohn/yippy/compare/v2.4.0...v2.5.0) (2026-05-12)
 
 
