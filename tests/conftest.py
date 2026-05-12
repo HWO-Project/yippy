@@ -3,14 +3,20 @@
 import pytest
 
 from yippy import Coronagraph
+from yippy.datasets import CATALOG
+
+requires_published_yip = pytest.mark.skipif(
+    CATALOG["eac1_aavc"]["md5"] is None,
+    reason="YIP not yet published; run Task 10 (packaging) and update CATALOG.",
+)
 
 
 @pytest.fixture(scope="session")
 def coro():
     """Session-scoped real coronagraph loaded from yippy's pooch registry."""
-    from yippy.datasets import fetch_coronagraph
+    from yippy import fetch_yip
 
-    yip_path = fetch_coronagraph()
+    yip_path = fetch_yip("eac1_aavc")
     return Coronagraph(yip_path)
 
 
