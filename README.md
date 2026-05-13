@@ -8,7 +8,7 @@
   <a href="https://yippy.readthedocs.io"><img src="https://readthedocs.org/projects/yippy/badge/?version=latest&style=flat-square" alt="Documentation Status"/></a>
   <a href="https://github.com/coreyspohn/yippy/blob/main/LICENSE"><img src="https://img.shields.io/github/license/coreyspohn/yippy?style=flat-square" alt="License"/></a>
   <a href="https://pypi.org/project/yippy/"><img src="https://img.shields.io/pypi/pyversions/yippy?style=flat-square" alt="Python"/></a>
-  <a href="https://doi.org/10.5281/zenodo.20172435"><img src="https://zenodo.org/badge/768296427.svg?style=flat-square" alt="DOI"></a>
+  <a href="https://doi.org/10.5281/zenodo.20172435"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20172435-blue?style=flat-square" alt="DOI"></a>
   <!-- <a href="https://github.com/coreyspohn/yippy/actions/workflows/ci.yml/"><img src="https://img.shields.io/github/actions/workflow/status/coreyspohn/yippy/ci.yml?branch=main&logo=github&style=flat-square" alt="CI"/></a> -->
 </p>
 

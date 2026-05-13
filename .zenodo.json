@@ -1,0 +1,34 @@
+{
+  "upload_type": "software",
+  "creators": [
+    {
+      "orcid": "0000-0002-3138-0240",
+      "affiliation": "NASA Goddard Space Flight Center, Greenbelt, MD",
+      "name": "Spohn, Corey"
+    }
+  ],
+  "license": "MIT",
+  "title": "yippy",
+  "description": "yippy is an open-source Python library for reading, interpreting, and querying coronagraph performance data from Yield Input Packages (YIPs). It provides Fourier-domain PSF interpolation, AYO/EXOSIMS-compatible exports, and a JAX-compatible interface for use in differentiable and GPU-accelerated Habitable Worlds Observatory simulation pipelines.",
+  "keywords": [
+    "coronagraph",
+    "exoplanets",
+    "Habitable Worlds Observatory",
+    "PSF interpolation",
+    "direct imaging",
+    "yield input package",
+    "JAX"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "10.5281/zenodo.20146086",
+      "relation": "references",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "https://github.com/CoreySpohn/yippy",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}
