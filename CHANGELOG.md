@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.2](https://github.com/CoreySpohn/yippy/compare/v2.6.1...v2.6.2) (2026-05-13)
+
+
+### Bug Fixes
+
+* Add zenodo info and update badge style ([09149ae](https://github.com/CoreySpohn/yippy/commit/09149aefa3e106eb34d1ad28e8f7123d9824bbc9))
+
 ## [2.6.1](https://github.com/CoreySpohn/yippy/compare/v2.6.0...v2.6.1) (2026-05-13)
 
 
