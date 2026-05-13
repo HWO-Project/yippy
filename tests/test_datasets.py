@@ -14,9 +14,9 @@ VALID_HASH = re.compile(r"^md5:[0-9a-f]{32}$")
 VALID_SAMPLING_SUFFIXES = ("_1d", "_2d")
 
 
-def test_catalog_has_19_entries():
-    """Catalog must contain exactly 19 entries (18 1D + 1 2D)."""
-    assert len(datasets.CATALOG) == 19
+def test_catalog_has_13_entries():
+    """Catalog must contain exactly 13 entries (12 1D + 1 2D)."""
+    assert len(datasets.CATALOG) == 13
 
 
 def test_catalog_keys_match_telescope_coronagraph_sampling():
@@ -39,18 +39,12 @@ def test_catalog_required_fields():
 
 
 def test_catalog_md5_format():
-    """md5 must be None or match the ``md5:<32 hex>`` format."""
+    """Every catalog entry must have a valid ``md5:<32 hex>`` hash."""
     for name, meta in datasets.CATALOG.items():
         md5 = meta["md5"]
-        assert md5 is None or VALID_HASH.match(md5), f"{name!r} has bad md5: {md5!r}"
-
-
-def test_publishable_count():
-    """Publishable count must be 0 (pre-build) or 13 (post-build, 12 1D + 1 2D)."""
-    publishable = sum(1 for m in datasets.CATALOG.values() if m["md5"] is not None)
-    assert publishable in {0, 13}, (
-        f"expected 0 (pre-build) or 13 (post-build) publishable, got {publishable}"
-    )
+        assert md5 is not None and VALID_HASH.match(md5), (
+            f"{name!r} has bad md5: {md5!r}"
+        )
 
 
 def test_fetch_coronagraph_removed():
@@ -67,19 +61,14 @@ def test_list_yips_no_filter_returns_all():
 def test_list_yips_telescope_filter():
     """Filtering by telescope returns only matching entries."""
     names = datasets.list_yips(telescope="eac1")
-    assert len(names) == 7  # 6 1D + 1 2D for eac1
+    assert len(names) == 6  # 5 1D + 1 2D for eac1
     assert all(n.startswith("eac1_") for n in names)
 
 
 def test_list_yips_coronagraph_filter():
     """Filtering by coronagraph returns matches across telescopes and samplings."""
     names = datasets.list_yips(coronagraph="aavc")
-    assert sorted(names) == [
-        "eac1_aavc_1d",
-        "eac1_aavc_2d",
-        "eac2_aavc_1d",
-        "eac3_aavc_1d",
-    ]
+    assert sorted(names) == ["eac1_aavc_1d", "eac1_aavc_2d"]
 
 
 def test_list_yips_combined_filter():
@@ -91,7 +80,7 @@ def test_list_yips_combined_filter():
 def test_list_yips_sampling_filter():
     """Filtering by sampling returns all entries of that regime."""
     assert datasets.list_yips(sampling="2d") == ["eac1_aavc_2d"]
-    assert len(datasets.list_yips(sampling="1d")) == 18
+    assert len(datasets.list_yips(sampling="1d")) == 12
 
 
 def test_list_yips_three_axis_filter_unique():
@@ -115,25 +104,14 @@ def test_list_yips_no_match_returns_empty():
     assert datasets.list_yips(telescope="lmt_42") == []
 
 
-def test_yip_exists_published_after_build_is_skipped_when_md5_none():
-    """yip_exists() returns True only when the entry has a real md5 hash.
-
-    Pre-build all md5s are None and exists() is always False. Once a real
-    md5 is populated for an entry, this returns True.
-    """
-    assert datasets.yip_exists("eac1_aavc_2d") == (
-        datasets.CATALOG["eac1_aavc_2d"]["md5"] is not None
-    )
+def test_yip_exists_known_name():
+    """yip_exists() returns True for any catalog entry."""
+    assert datasets.yip_exists("eac1_aavc_2d") is True
 
 
 def test_yip_exists_unknown_name():
     """yip_exists() returns False for an unknown YIP name."""
     assert datasets.yip_exists("not_a_real_yip") is False
-
-
-def test_yip_exists_reserved_entry_returns_false():
-    """eac3_spc_1d is a reserved entry - never publishable."""
-    assert datasets.yip_exists("eac3_spc_1d") is False
 
 
 def test_yip_info_returns_metadata_dict():
@@ -183,23 +161,13 @@ def test_fetch_yip_multi_match_query_raises_valueerror():
         datasets.fetch_yip(telescope="eac1", coronagraph="aavc")
 
 
-def test_fetch_yip_reserved_entry_raises_lookuperror():
-    """eac3_spc_1d is reserved (md5=None). Should raise LookupError."""
-    with pytest.raises(LookupError, match="not yet hosted"):
-        datasets.fetch_yip("eac3_spc_1d")
-
-
 @pytest.mark.network
 @pytest.mark.skipif(
     datasets.ZENODO_DOI.endswith("PLACEHOLDER"),
     reason="Zenodo DOI not yet set; v1 release pending.",
 )
-@pytest.mark.skipif(
-    datasets.CATALOG["eac1_aavc_2d"]["md5"] is None,
-    reason="eac1_aavc_2d md5 not yet populated; run packaging script.",
-)
 def test_fetch_smallest_yip_loads_as_coronagraph(tmp_path):
-    """End-to-end: pull the smallest publishable YIP and load yippy.Coronagraph."""
+    """End-to-end: pull the smallest available YIP and load yippy.Coronagraph."""
     from pathlib import Path
 
     from yippy import Coronagraph

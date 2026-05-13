@@ -148,8 +148,9 @@ def build_archive(src: Path, out_dir: Path, name: str) -> tuple[Path, str]:
 def format_catalog_block(updates: dict[str, str | None]) -> str:
     """Return the full CATALOG dict as Python source code.
 
-    Entries not in `updates` keep ``md5=None``. Entries in `updates`
-    take the provided md5 string (or None for explicitly-reserved).
+    Entries in ``updates`` take the provided md5 (or None for entries
+    awaiting a fresh build). Entries not in ``updates`` keep their
+    existing md5.
     """
     lines = ["CATALOG = {"]
     for name, meta in CATALOG.items():
@@ -182,15 +183,15 @@ def main() -> int:
     args = ap.parse_args()
 
     updates: dict[str, str | None] = {}
-    publishable = 0
-    reserved = 0
+    available = 0
+    missing = 0
     skipped = 0
     for name, meta in CATALOG.items():
         # Only the 1D YIPs come from the for_rus/ tree. 2D YIPs (and any
         # other out-of-band entries) are packaged separately and we leave
         # their existing md5 alone.
         if not name.endswith("_1d"):
-            print(f"  SKIP      {name}  (not a 1D entry; packaged separately)")
+            print(f"  SKIP       {name}  (not a 1D entry; packaged separately)")
             skipped += 1
             continue
         src = locate_source_dir(
@@ -199,17 +200,17 @@ def main() -> int:
             coronagraph=meta["coronagraph"],
         )
         if src is None:
-            print(f"  RESERVED  {name}  (source missing or empty)")
+            print(f"  MISSING    {name}  (source missing or empty)")
             updates[name] = None
-            reserved += 1
+            missing += 1
             continue
         zip_path, md5 = build_archive(src, args.out, name=name)
-        print(f"  PUBLISH   {name}  ->  {zip_path.name}  {md5}")
+        print(f"  AVAILABLE  {name}  ->  {zip_path.name}  {md5}")
         updates[name] = md5
-        publishable += 1
+        available += 1
 
     print()
-    print(f"# {publishable} publishable, {reserved} reserved, {skipped} skipped")
+    print(f"# {available} available, {missing} missing, {skipped} skipped")
     print()
     print(format_catalog_block(updates))
     return 0

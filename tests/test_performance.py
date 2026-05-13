@@ -5,7 +5,7 @@ conftest.py (downloaded via pooch).
 """
 
 import numpy as np
-from conftest import requires_published_yip
+from conftest import requires_available_yip
 
 from yippy.performance import (
     _collect_and_sort,
@@ -94,7 +94,7 @@ class TestThresholdMask:
 # =============================================================================
 
 
-@requires_published_yip
+@requires_available_yip
 class TestThroughputCurve:
     """Tests for throughput curve computation."""
 
@@ -110,7 +110,7 @@ class TestThroughputCurve:
         assert np.all(np.diff(sep) >= 0)
 
 
-@requires_published_yip
+@requires_available_yip
 class TestRawContrastCurve:
     """Tests for raw contrast curve computation."""
 
@@ -120,7 +120,7 @@ class TestRawContrastCurve:
         assert np.all(contrast >= 0)
 
 
-@requires_published_yip
+@requires_available_yip
 class TestTruncationThroughputCurve:
     """Tests for truncation throughput curve."""
 
@@ -133,7 +133,7 @@ class TestTruncationThroughputCurve:
         assert np.all(throughput <= 1.0)
 
 
-@requires_published_yip
+@requires_available_yip
 class TestTruncationCoreAreaCurve:
     """Tests for truncation core area curve."""
 
@@ -143,7 +143,7 @@ class TestTruncationCoreAreaCurve:
         assert np.all(core_area > 0)
 
 
-@requires_published_yip
+@requires_available_yip
 class TestCoreAreaCurve:
     """Tests for fixed-aperture core area curve."""
 
@@ -154,7 +154,7 @@ class TestCoreAreaCurve:
         np.testing.assert_allclose(core_area, expected, rtol=1e-10)
 
 
-@requires_published_yip
+@requires_available_yip
 class TestOccTransCurve:
     """Tests for occulter transmission curve."""
 
@@ -165,7 +165,7 @@ class TestOccTransCurve:
         assert np.all(occ_trans <= 1.0 + 1e-6)
 
 
-@requires_published_yip
+@requires_available_yip
 class TestCoreMeanIntensityCurve:
     """Tests for core mean intensity curve."""
 
@@ -177,7 +177,7 @@ class TestCoreMeanIntensityCurve:
             assert len(profile) == len(sep)
 
 
-@requires_published_yip
+@requires_available_yip
 class TestComputeAllPerformanceCurves:
     """Integration tests for the orchestrator."""
 

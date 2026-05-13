@@ -70,14 +70,13 @@ def _generate_yip_catalog_table(app):
     from yippy.datasets import CATALOG
 
     rows = [
-        "| YIP name | Telescope | Coronagraph | Designer | Status |",
-        "|---|---|---|---|---|",
+        "| YIP name | Telescope | Coronagraph | Designer |",
+        "|---|---|---|---|",
     ]
     for name, meta in sorted(CATALOG.items()):
-        status = "published" if meta["md5"] is not None else "reserved"
         rows.append(
             f"| `{name}` | `{meta['telescope']}` | `{meta['coronagraph']}` | "
-            f"{meta['designer']} | {status} |"
+            f"{meta['designer']} |"
         )
 
     out_dir = Path(__file__).parent / "_generated"

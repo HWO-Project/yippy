@@ -7,14 +7,12 @@ cached locally on first use via [pooch](https://www.fatiando.org/pooch/).
 ## Available datasets
 
 The table below is generated from `yippy.datasets.CATALOG` at doc-build
-time and lists every YIP yippy knows about.
+time and lists every YIP yippy knows about. Every entry in the catalog
+is fetchable; new YIPs are added only once their archive is on Zenodo
+and the md5 hash is locked into the catalog.
 
 ```{include} _generated/yip_catalog.md
 ```
-
-Entries marked **reserved** are catalogued for a future release but the
-underlying data has not yet been delivered by the designer. Calling
-`fetch_yip` on a reserved entry raises `LookupError`.
 
 ## Sampling
 
@@ -53,23 +51,58 @@ the cache and are instantaneous.
 
 ## Discovery helpers
 
+Three small helpers let you browse the catalog without downloading anything.
+
+### `list_yips` -- filter the catalog
+
 ```python
-from yippy import list_yips, yip_exists, yip_info
+>>> from yippy import list_yips
+>>> list_yips(telescope="eac1")
+['eac1_aavc_1d',
+ 'eac1_spc_1d',
+ 'eac1_lcppc_v1_1d',
+ 'eac1_optimal_order_6_1d',
+ 'eac1_pic_400channels_order6_1d',
+ 'eac1_aavc_2d']
 
-# All names matching filters
-list_yips(telescope="eac1")          # all eac1 variants (1D + 2D)
-list_yips(coronagraph="optimal_order_6")  # one per telescope
-list_yips(sampling="2d")             # all 2D YIPs
+>>> list_yips(coronagraph="optimal_order_6")
+['eac1_optimal_order_6_1d',
+ 'eac2_optimal_order_6_1d',
+ 'eac3_optimal_order_6_1d']
 
-# Check whether a name is published
-yip_exists("eac1_aavc_2d")  # True (post-v1)
-yip_exists("eac3_spc_1d")   # False - reserved
+>>> list_yips(sampling="2d")
+['eac1_aavc_2d']
 
-# Inspect metadata
-yip_info("eac1_aavc_2d")
-# {"telescope": "eac1", "coronagraph": "aavc", "designer": "Susan Redmond",
-#  "md5": "md5:..."}
+>>> list_yips()  # everything
 ```
+
+Valid filter keys are `telescope`, `coronagraph`, and `sampling`. Combine
+any of them; the call returns names whose metadata matches every filter.
+
+### `yip_exists` -- membership check
+
+```python
+>>> from yippy import yip_exists
+>>> yip_exists("eac1_aavc_2d")
+True
+>>> yip_exists("not_a_yip")
+False
+```
+
+### `yip_info` -- inspect metadata
+
+```python
+>>> from yippy import yip_info
+>>> yip_info("eac1_aavc_2d")
+{'telescope': 'eac1',
+ 'coronagraph': 'aavc',
+ 'designer': 'Susan Redmond',
+ 'md5': 'md5:1f4892faff18e55cbec9781a055bea4d',
+ 'sampling': '2d'}
+```
+
+Descriptive metadata beyond these fields (wavelengths, dark-zone extent,
+pixel scale, ...) lives in each YIP's FITS headers, not in the catalog.
 
 ## Migration from `fetch_coronagraph`
 

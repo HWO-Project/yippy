@@ -28,8 +28,8 @@ import pooch
 from pooch import Unzip
 
 # ---------------------------------------------------------------------------
-# Zenodo DOI for the published YIP archive. Updated when a new version of
-# the record is published.
+# Zenodo DOI for the YIP archive. Updated when a new version of the record
+# is published on Zenodo.
 # ---------------------------------------------------------------------------
 ZENODO_DOI: str = "10.5281/zenodo.20146086"
 
@@ -63,12 +63,6 @@ CATALOG: dict[str, dict[str, Any]] = {
         "designer": "Rus Belikov",
         "md5": "md5:df52540008a0e85467720ec91c3a84b8",
     },
-    "eac1_aplc_1d": {
-        "telescope": "eac1",
-        "coronagraph": "aplc",
-        "designer": "Bryony Nickson",
-        "md5": None,
-    },
     "eac1_pic_400channels_order6_1d": {
         "telescope": "eac1",
         "coronagraph": "pic_400channels_order6",
@@ -76,18 +70,6 @@ CATALOG: dict[str, dict[str, Any]] = {
         "md5": "md5:b90c4600fc32edfc6007c7fff2642036",
     },
     # EAC2 (1D)
-    "eac2_aavc_1d": {
-        "telescope": "eac2",
-        "coronagraph": "aavc",
-        "designer": "Susan Redmond",
-        "md5": None,
-    },
-    "eac2_spc_1d": {
-        "telescope": "eac2",
-        "coronagraph": "spc",
-        "designer": "Jessica Gersh-Range",
-        "md5": None,
-    },
     "eac2_lcppc_v1_1d": {
         "telescope": "eac2",
         "coronagraph": "lcppc_v1",
@@ -100,12 +82,6 @@ CATALOG: dict[str, dict[str, Any]] = {
         "designer": "Rus Belikov",
         "md5": "md5:579c80c9e3f7f52a0ebd18858485fa4b",
     },
-    "eac2_aplc_1d": {
-        "telescope": "eac2",
-        "coronagraph": "aplc",
-        "designer": "Bryony Nickson",
-        "md5": None,
-    },
     "eac2_pic_400channels_order6_1d": {
         "telescope": "eac2",
         "coronagraph": "pic_400channels_order6",
@@ -113,18 +89,6 @@ CATALOG: dict[str, dict[str, Any]] = {
         "md5": "md5:384c79d3ac1777c0c2680348cb84fcce",
     },
     # EAC3 (1D)
-    "eac3_aavc_1d": {
-        "telescope": "eac3",
-        "coronagraph": "aavc",
-        "designer": "Susan Redmond",
-        "md5": None,
-    },
-    "eac3_spc_1d": {
-        "telescope": "eac3",
-        "coronagraph": "spc",
-        "designer": "Jessica Gersh-Range",
-        "md5": None,
-    },
     "eac3_lcppc_v1_1d": {
         "telescope": "eac3",
         "coronagraph": "lcppc_v1",
@@ -172,20 +136,16 @@ for _name, _meta in CATALOG.items():
 del _name, _meta
 
 
-# Pooch instance; registry holds only entries whose md5 is known at import time.
+# Pooch instance; every catalog entry is registered with its md5.
 _POOCH = pooch.create(
     path=pooch.os_cache("yippy"),
     base_url=f"doi:{ZENODO_DOI}/",
-    registry={
-        f"{name}.zip": meta["md5"]
-        for name, meta in CATALOG.items()
-        if meta["md5"] is not None
-    },
+    registry={f"{name}.zip": meta["md5"] for name, meta in CATALOG.items()},
 )
 
 
 # ---------------------------------------------------------------------------
-# Public API (stubs - implemented in later tasks)
+# Public API
 # ---------------------------------------------------------------------------
 def fetch_yip(
     name: str | None = None,
@@ -206,8 +166,6 @@ def fetch_yip(
         TypeError: if both ``name`` and filters are passed (or neither).
         KeyError: if ``name`` is not in the catalog.
         ValueError: if the structured query has zero or multiple matches.
-        LookupError: if the matched entry has not yet been published
-            (``md5`` is None).
     """
     filters: dict[str, str] = {}
     if telescope is not None:
@@ -240,12 +198,6 @@ def fetch_yip(
                 "Pass `name=` directly or narrow filters."
             )
         resolved = matches[0]
-
-    meta = CATALOG[resolved]
-    if meta["md5"] is None:
-        raise LookupError(
-            f"YIP {resolved!r} is catalogued but not yet hosted. Status: reserved."
-        )
 
     paths = _POOCH.fetch(f"{resolved}.zip", processor=Unzip())
     # Unzip returns a list of paths under the unzipped dir. The YIP itself
@@ -288,9 +240,8 @@ def list_yips(**filters: str) -> list[str]:
 
 
 def yip_exists(name: str) -> bool:
-    """True iff ``name`` is in the catalog AND has a published md5."""
-    meta = CATALOG.get(name)
-    return meta is not None and meta["md5"] is not None
+    """True iff ``name`` is an available YIP in the catalog."""
+    return name in CATALOG
 
 
 def yip_info(name: str) -> dict[str, Any]:

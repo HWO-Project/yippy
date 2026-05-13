@@ -5,9 +5,9 @@ Uses the session-scoped ``coro`` fixture from conftest.py.
 
 import numpy as np
 import pytest
-from conftest import requires_published_yip
+from conftest import requires_available_yip
 
-pytestmark = requires_published_yip
+pytestmark = requires_available_yip
 
 
 class TestSeparationMap:
