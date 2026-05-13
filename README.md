@@ -9,7 +9,8 @@
   <a href="https://github.com/coreyspohn/yippy/blob/main/LICENSE"><img src="https://img.shields.io/github/license/coreyspohn/yippy?style=flat-square" alt="License"/></a>
   <a href="https://pypi.org/project/yippy/"><img src="https://img.shields.io/pypi/pyversions/yippy?style=flat-square" alt="Python"/></a>
   <a href="https://doi.org/10.5281/zenodo.20172435"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20172435-blue?style=flat-square" alt="DOI"></a>
-  <!-- <a href="https://github.com/coreyspohn/yippy/actions/workflows/ci.yml/"><img src="https://img.shields.io/github/actions/workflow/status/coreyspohn/yippy/ci.yml?branch=main&logo=github&style=flat-square" alt="CI"/></a> -->
+  <a href="https://github.com/coreyspohn/yippy/actions/workflows/tests.yml"><img src="https://img.shields.io/github/actions/workflow/status/coreyspohn/yippy/tests.yml?branch=main&logo=github&style=flat-square&label=tests" alt="Tests"/></a>
+  <a href="https://github.com/pre-commit/pre-commit"><img src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?style=flat-square&logo=pre-commit" alt="pre-commit"/></a>
 </p>
 
 ---
