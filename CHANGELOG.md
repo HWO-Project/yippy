@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.1](https://github.com/CoreySpohn/yippy/compare/v2.6.0...v2.6.1) (2026-05-13)
+
+
+### Miscellaneous Chores
+
+* release 2.6.1 ([5b8c144](https://github.com/CoreySpohn/yippy/commit/5b8c14487a227f7fdb5d5034f4d40f2db0570901))
+
 ## [2.6.0](https://github.com/CoreySpohn/yippy/compare/v2.5.1...v2.6.0) (2026-05-13)
 
 
