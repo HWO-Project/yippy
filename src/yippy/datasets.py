@@ -1,10 +1,10 @@
 """Public catalog and loader for yield input packages (YIPs).
 
 The CATALOG dict is the source of truth: keys are flat YIP names like
-``eac1_aavc``; values carry just enough metadata to drive downloads and
-filtered discovery (``telescope``, ``coronagraph``, ``md5``). Descriptive
-metadata (designer, wavelengths, dark-zone extent, ...) lives in the FITS
-headers inside each YIP, not here.
+``eac1_aavc_2d``; values carry just enough metadata to drive downloads
+and filtered discovery (``telescope``, ``coronagraph``, ``sampling``,
+``md5``). Descriptive metadata (designer, wavelengths, dark-zone
+extent, ...) lives in the FITS headers inside each YIP, not here.
 
 Archives are hosted on Zenodo and fetched via pooch's DOI protocol. To
 publish new YIPs: upload a new Zenodo record version, paste the new DOI
