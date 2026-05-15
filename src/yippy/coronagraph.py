@@ -216,6 +216,7 @@ class Coronagraph:
                 load_from_file=perf_file,
                 cache_dir=self._perf_dir,
                 plot=False,
+                psf_trunc_ratio=self.psf_trunc_ratio,
                 interp_order=interp_order,
             )
         else:
