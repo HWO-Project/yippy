@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.2](https://github.com/CoreySpohn/yippy/compare/v2.7.1...v2.7.2) (2026-05-15)
+
+
+### Bug Fixes
+
+* Properly pass the psf truncation ratio to the performance metrics function on cache hit ([ab40225](https://github.com/CoreySpohn/yippy/commit/ab402259dcf288205d690edcd3763d90888827e7))
+
 ## [2.7.1](https://github.com/CoreySpohn/yippy/compare/v2.7.0...v2.7.1) (2026-05-15)
 
 
