@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.0](https://github.com/CoreySpohn/yippy/compare/v2.6.2...v2.7.0) (2026-05-15)
+
+
+### Features
+
+* Custom cache directory support ([c636b1f](https://github.com/CoreySpohn/yippy/commit/c636b1fae877b944aa6c67b42e80f8165234feb9))
+
 ## [2.6.2](https://github.com/CoreySpohn/yippy/compare/v2.6.1...v2.6.2) (2026-05-13)
 
 
