@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 
+import pooch
 import pytest
 
 from yippy import datasets
@@ -159,6 +160,95 @@ def test_fetch_yip_multi_match_query_raises_valueerror():
     # eac1 + aavc matches both _1d and _2d; sampling must also be passed.
     with pytest.raises(ValueError, match="multiple"):
         datasets.fetch_yip(telescope="eac1", coronagraph="aavc")
+
+
+def test_cache_dir_returns_platform_default_when_env_unset(monkeypatch):
+    """cache_dir() returns the platform default when YIPPY_CACHE_DIR is unset."""
+    from pathlib import Path
+
+    monkeypatch.delenv(datasets.CACHE_DIR_ENV_VAR, raising=False)
+    result = datasets.cache_dir()
+    assert isinstance(result, Path)
+    assert result == Path(datasets._PIKACHU.path)
+
+
+def test_cache_dir_honors_env_var(monkeypatch, tmp_path):
+    """cache_dir() returns the YIPPY_CACHE_DIR location when the env var is set."""
+    monkeypatch.setenv(datasets.CACHE_DIR_ENV_VAR, str(tmp_path))
+    assert datasets.cache_dir() == tmp_path
+
+
+def test_cache_dir_expands_user_in_env_var(monkeypatch):
+    """A leading ~ in YIPPY_CACHE_DIR is expanded to the user's home directory."""
+    from pathlib import Path
+
+    monkeypatch.setenv(datasets.CACHE_DIR_ENV_VAR, "~/Documents/YIPs")
+    assert datasets.cache_dir() == Path("~/Documents/YIPs").expanduser()
+
+
+def test_fetch_yip_env_var_routes_fetch_to_custom_dir(monkeypatch, tmp_path):
+    """YIPPY_CACHE_DIR (without cache_path kwarg) routes fetches to that dir."""
+    monkeypatch.setenv(datasets.CACHE_DIR_ENV_VAR, str(tmp_path))
+    captured = {}
+
+    def fake_fetch(self, fname, processor=None):
+        captured["path"] = self.path
+        target = self.path / f"{fname}.unzip" / fname.removesuffix(".zip")
+        target.mkdir(parents=True, exist_ok=True)
+        sample = target / "offax_psf.fits"
+        sample.touch()
+        return [str(sample)]
+
+    monkeypatch.setattr(pooch.Pooch, "fetch", fake_fetch)
+    datasets.fetch_yip("eac1_aavc_2d")
+
+    assert captured["path"] == tmp_path
+
+
+def test_fetch_yip_cache_path_overrides_env_var(monkeypatch, tmp_path):
+    """An explicit cache_path beats YIPPY_CACHE_DIR."""
+    env_dir = tmp_path / "env"
+    explicit_dir = tmp_path / "explicit"
+    env_dir.mkdir()
+    explicit_dir.mkdir()
+    monkeypatch.setenv(datasets.CACHE_DIR_ENV_VAR, str(env_dir))
+    captured = {}
+
+    def fake_fetch(self, fname, processor=None):
+        captured["path"] = self.path
+        target = self.path / f"{fname}.unzip" / fname.removesuffix(".zip")
+        target.mkdir(parents=True, exist_ok=True)
+        sample = target / "offax_psf.fits"
+        sample.touch()
+        return [str(sample)]
+
+    monkeypatch.setattr(pooch.Pooch, "fetch", fake_fetch)
+    datasets.fetch_yip("eac1_aavc_2d", cache_path=explicit_dir)
+
+    assert captured["path"] == explicit_dir
+
+
+def test_fetch_yip_cache_path_builds_separate_pooch(monkeypatch, tmp_path):
+    """Passing cache_path routes the fetch through a fresh pooch at that dir."""
+    captured = {}
+
+    def fake_fetch(self, fname, processor=None):
+        captured["path"] = self.path
+        captured["fname"] = fname
+        # Mimic Unzip's output: a single file path inside an unzipped folder.
+        target = self.path / f"{fname}.unzip" / fname.removesuffix(".zip")
+        target.mkdir(parents=True, exist_ok=True)
+        sample = target / "offax_psf.fits"
+        sample.touch()
+        return [str(sample)]
+
+    monkeypatch.setattr(pooch.Pooch, "fetch", fake_fetch)
+
+    result = datasets.fetch_yip("eac1_aavc_2d", cache_path=tmp_path)
+
+    assert captured["path"] == tmp_path
+    assert captured["fname"] == "eac1_aavc_2d.zip"
+    assert result.endswith("eac1_aavc_2d")
 
 
 @pytest.mark.network

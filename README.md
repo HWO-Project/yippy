@@ -30,14 +30,14 @@ pip install yippy
 
 ## Quick Start
 
+The primary workflow is to point yippy at a YIP directory you already have
+on disk -- either one you built yourself or one you downloaded:
+
 ```python
-from yippy import Coronagraph, fetch_yip
+from yippy import Coronagraph
 
-# Download an example YIP (cached after first call)
-yip_path = fetch_yip("eac1_aavc")
-
-# Create a coronagraph object
-coro = Coronagraph(yip_path)
+# Load a YIP from a folder on disk
+coro = Coronagraph("path/to/eac1_aavc_2d")
 
 # Off-axis PSF at a given (x, y) position
 from lod_unit import lod
@@ -52,6 +52,9 @@ occ_trans  = coro.occulter_transmission(5.0)
 throughput_map = coro.throughput_map()
 core_area_map  = coro.core_area_map()
 ```
+
+If you don't have a YIP on hand, see [Example data](#example-data-beta)
+below for a convenience downloader.
 
 ## Two-Class Design
 
@@ -147,15 +150,49 @@ throughput and core area are computed using an adaptive aperture that includes
 all oversampled pixels exceeding `ratio * peak`. This matches AYO's
 `photap_frac` / `omega_lod` calculation and is recommended for ETC integration.
 
-## Example Data
+## Example data (beta)
 
-yippy ships with `pooch`-managed example data for testing and notebooks:
+For convenience, yippy can download a small catalog of example YIPs hosted
+on Zenodo. This is useful for tutorials, CI, and "I just want to try it"
+exploration:
 
 ```python
-from yippy import fetch_yip
+from yippy import Coronagraph, fetch_yip
 
-# Downloads and caches an example apodized vortex coronagraph
-yip_path = fetch_yip("eac1_aavc")
+yip_path = fetch_yip("eac1_aavc_2d")   # download (cached after first call)
+coro     = Coronagraph(yip_path)
+```
+
+> **Beta.** The Zenodo-hosted YIP archive is a stopgap. A non-Zenodo
+> distribution channel may replace it in the near future. For production
+> or reproducible work, manage your own YIP paths and pass them to
+> `Coronagraph(path)` directly.
+
+See [`yippy.list_yips()`](https://yippy.readthedocs.io/en/latest/datasets.html)
+for the available names and the
+[datasets guide](https://yippy.readthedocs.io/en/latest/datasets.html)
+for filtered queries and metadata inspection.
+
+### Cache location (advanced)
+
+By default, `fetch_yip` caches archives under
+`pooch.os_cache("yippy")` -- the OS-conventional location provided by
+[platformdirs](https://platformdirs.readthedocs.io) (e.g.
+`~/Library/Caches/yippy` on macOS, `~/.cache/yippy` on Linux). To pin
+the cache elsewhere:
+
+```bash
+# Persistent override -- pyEDITH and other consumers inherit this
+export YIPPY_CACHE_DIR=~/Documents/YIPs
+```
+
+```python
+# Per-call override (wins over the env var)
+yip_path = fetch_yip("eac1_aavc_2d", cache_path="/data/shared/yips")
+
+# Introspect the resolved cache directory without triggering a fetch
+from yippy import cache_dir
+print(cache_dir())
 ```
 
 ## Units

@@ -4,6 +4,7 @@ __all__ = [
     "Coronagraph",
     "EqxCoronagraph",
     "__version__",
+    "cache_dir",
     "fetch_yip",
     "list_yips",
     "logger",
@@ -13,6 +14,6 @@ __all__ = [
 
 from ._version import __version__
 from .coronagraph import Coronagraph
-from .datasets import fetch_yip, list_yips, yip_exists, yip_info
+from .datasets import cache_dir, fetch_yip, list_yips, yip_exists, yip_info
 from .eqx_coronagraph import EqxCoronagraph
 from .logger import logger

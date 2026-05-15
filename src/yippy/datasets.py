@@ -12,7 +12,9 @@ into ``ZENODO_DOI``, and refresh the md5 hashes via
 ``scripts/build_zenodo_archives.py``.
 
 Public API:
-- ``fetch_yip(name=None, *, telescope=None, coronagraph=None) -> str``
+- ``fetch_yip(name=None, *, telescope=None, coronagraph=None, sampling=None,
+              cache_path=None) -> str``
+- ``cache_dir() -> Path``
 - ``list_yips(**filters) -> list[str]``
 - ``yip_exists(name) -> bool``
 - ``yip_info(name) -> dict``
@@ -21,11 +23,26 @@ Public API:
 from __future__ import annotations
 
 import difflib
+import logging
+import os
 from pathlib import Path
 from typing import Any
 
 import pooch
 from pooch import Unzip
+
+from .logger import logger
+
+# Quiet pooch's INFO-level chatter so YIP download events come through the
+# yippy logger in the expected format. Warnings and errors still surface.
+logging.getLogger("pooch").setLevel(logging.WARNING)
+
+# Users can pin the YIP cache to a custom directory by exporting this env var.
+# Resolution priority for a cache location:
+#   1. ``cache_path`` keyword passed to fetch_yip
+#   2. ``YIPPY_CACHE_DIR`` environment variable
+#   3. pooch.os_cache("yippy") -- platform default via platformdirs
+CACHE_DIR_ENV_VAR = "YIPPY_CACHE_DIR"
 
 # ---------------------------------------------------------------------------
 # Zenodo DOI for the YIP archive. Updated when a new version of the record
@@ -136,23 +153,48 @@ for _name, _meta in CATALOG.items():
 del _name, _meta
 
 
-# Pooch instance; every catalog entry is registered with its md5.
-_POOCH = pooch.create(
-    path=pooch.os_cache("yippy"),
-    base_url=f"doi:{ZENODO_DOI}/",
-    registry={f"{name}.zip": meta["md5"] for name, meta in CATALOG.items()},
-)
+def _make_pikachu(cache_dir_path: str | Path) -> pooch.Pooch:
+    """Build a pooch instance for the YIP catalog at ``cache_dir_path``."""
+    return pooch.create(
+        path=cache_dir_path,
+        base_url=f"doi:{ZENODO_DOI}/",
+        registry={f"{name}.zip": meta["md5"] for name, meta in CATALOG.items()},
+    )
+
+
+# Default pooch instance for yippy's YIP cache (platform-default location).
+# Named after Corey's dog. The env-var and per-call overrides build their own
+# pooch on demand; this is the fast path for zero-config users.
+_PIKACHU = _make_pikachu(pooch.os_cache("yippy"))
 
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+def cache_dir() -> Path:
+    """Return the directory where yippy caches YIP archives by default.
+
+    Resolution order:
+      1. ``YIPPY_CACHE_DIR`` environment variable, if set.
+      2. ``pooch.os_cache("yippy")`` -- the OS-conventional cache directory
+         provided by platformdirs (e.g. ``~/Library/Caches/yippy`` on macOS,
+         ``~/.cache/yippy`` on Linux).
+
+    Override per call by passing ``cache_path`` to :func:`fetch_yip`.
+    """
+    env = os.environ.get(CACHE_DIR_ENV_VAR)
+    if env:
+        return Path(env).expanduser()
+    return Path(_PIKACHU.path)
+
+
 def fetch_yip(
     name: str | None = None,
     *,
     telescope: str | None = None,
     coronagraph: str | None = None,
     sampling: str | None = None,
+    cache_path: str | Path | None = None,
 ) -> str:
     """Download a YIP archive (if not cached), unpack, and return its path.
 
@@ -161,6 +203,11 @@ def fetch_yip(
     The keyword form must resolve to exactly one catalog entry; pass
     ``sampling`` whenever a ``(telescope, coronagraph)`` pair has both
     1D and 2D variants.
+
+    YIPs are cached at :func:`cache_dir` (which honors the
+    ``YIPPY_CACHE_DIR`` environment variable). Pass ``cache_path`` to
+    override the cache location for this call only -- useful for
+    shared institutional setups or project-scoped caches.
 
     Raises:
         TypeError: if both ``name`` and filters are passed (or neither).
@@ -199,9 +246,16 @@ def fetch_yip(
             )
         resolved = matches[0]
 
-    paths = _POOCH.fetch(f"{resolved}.zip", processor=Unzip())
+    if cache_path is not None:
+        pikachu = _make_pikachu(cache_path)
+    elif os.environ.get(CACHE_DIR_ENV_VAR):
+        pikachu = _make_pikachu(cache_dir())
+    else:
+        pikachu = _PIKACHU
+    logger.info(f"Fetching YIP {resolved!r} (cache: {pikachu.path})")
+    paths = pikachu.fetch(f"{resolved}.zip", processor=Unzip())
     # Unzip returns a list of paths under the unzipped dir. The YIP itself
-    # lives at the archive root under `{name}/`. Return the directory.
+    # lives at the archive root under `{name}/`. Resolve to that directory.
     sample_path = Path(paths[0])
     yip_dir = sample_path.parent
     # Walk up looking for a directory named after the YIP. If we hit a
@@ -209,12 +263,17 @@ def fetch_yip(
     # treat its sibling/parent path as the YIP directory.
     while yip_dir.parent != yip_dir:
         if yip_dir.name == resolved:
-            return str(yip_dir)
+            break
         if yip_dir.name == f"{resolved}.zip":
-            return str(yip_dir.parent / resolved)
+            yip_dir = yip_dir.parent / resolved
+            break
         yip_dir = yip_dir.parent
-    # Fallback: return the immediate parent of the sample file.
-    return str(sample_path.parent)
+    else:
+        # Fallback: the immediate parent of the sample file.
+        yip_dir = sample_path.parent
+
+    logger.info(f"YIP {resolved!r} available at {yip_dir}")
+    return str(yip_dir)
 
 
 _FILTERABLE_FIELDS = frozenset({"telescope", "coronagraph", "sampling"})
