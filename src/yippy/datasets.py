@@ -31,7 +31,9 @@ from typing import Any
 import pooch
 from pooch import Unzip
 
-from .logger import logger
+# By name, not relative import: scripts/build_zenodo_archives.py loads this
+# module standalone via importlib and has no parent package.
+logger = logging.getLogger("yippy")
 
 # Quiet pooch's INFO-level chatter so YIP download events come through the
 # yippy logger in the expected format. Warnings and errors still surface.
