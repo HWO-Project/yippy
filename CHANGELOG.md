@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.3](https://github.com/CoreySpohn/yippy/compare/v2.7.2...v2.7.3) (2026-05-18)
+
+
+### Bug Fixes
+
+* Move YIP hosting from Zenodo to a data release ([d811a5e](https://github.com/CoreySpohn/yippy/commit/d811a5ef6381ed9c2bfdd0585c24cae1f8e7a23e))
+
 ## [2.7.2](https://github.com/CoreySpohn/yippy/compare/v2.7.1...v2.7.2) (2026-05-15)
 
 
