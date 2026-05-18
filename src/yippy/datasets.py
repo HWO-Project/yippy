@@ -66,7 +66,7 @@ _DATA_BASE_URL: str = (
 # ---------------------------------------------------------------------------
 # Catalog
 #
-# Intentionally minimal: long-term YIP hosting is ExEP's responsibility.
+# Intentionally minimal: long-term YIP hosting will be provided by ExEP.
 # Only the two reference YIPs used by the yippy paper validation pipeline
 # live here.
 # ---------------------------------------------------------------------------

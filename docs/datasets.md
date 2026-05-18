@@ -16,9 +16,9 @@ The catalog is hosted as assets on a tagged GitHub release of the yippy
 repository and cached locally on first use.
 
 ```{note}
-The catalog is intentionally minimal. Long-term YIP hosting is ExEP's
-responsibility, and only the two reference YIPs used by the yippy paper
-validation pipeline are shipped here. For production work or YIPs
+The catalog is intentionally minimal. Long-term YIP hosting will be
+provided by ExEP, and only the two reference YIPs used by the yippy
+paper validation pipeline are shipped here. For production work or YIPs
 outside this set, manage your own YIP paths and pass them to
 `Coronagraph(path)` directly.
 ```

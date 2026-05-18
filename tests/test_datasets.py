@@ -18,10 +18,10 @@ VALID_SAMPLING_SUFFIXES = ("_1d", "_2d")
 def test_catalog_has_two_reference_entries():
     """Catalog ships the two reference YIPs used by the yippy paper.
 
-    Long-term YIP hosting is ExEP's responsibility; yippy hosts only the
-    minimum needed to reproduce the validation figures. If the catalog
-    grows beyond two reference YIPs, that decision should be reflected
-    by updating this expectation deliberately.
+    Long-term YIP hosting will be provided by ExEP, and yippy ships only
+    the minimum needed to reproduce the validation figures. If the
+    catalog grows beyond two reference YIPs, that decision should be
+    reflected by updating this expectation deliberately.
     """
     assert set(datasets.CATALOG) == {"eac1_aavc_2d", "eac1_optimal_order_6_1d"}
 
