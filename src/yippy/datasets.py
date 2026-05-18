@@ -6,10 +6,17 @@ and filtered discovery (``telescope``, ``coronagraph``, ``sampling``,
 ``md5``). Descriptive metadata (designer, wavelengths, dark-zone
 extent, ...) lives in the FITS headers inside each YIP, not here.
 
-Archives are hosted on Zenodo and fetched via pooch's DOI protocol. To
-publish new YIPs: upload a new Zenodo record version, paste the new DOI
-into ``ZENODO_DOI``, and refresh the md5 hashes via
-``scripts/build_zenodo_archives.py``.
+Archives are hosted as assets on a tagged GitHub release of this repo
+(currently ``data-v1``) and fetched via pooch over HTTPS. The release
+tag is separate from the code-release lifecycle managed by
+release-please. To publish new YIPs: bump ``DATA_RELEASE_TAG`` to a new
+``data-vN``, attach the updated zips to that release, and refresh the
+md5 hashes here.
+
+The two-YIP catalog is intentionally minimal: long-term YIP hosting will
+be provided by ExEP, and yippy hosts only the two reference YIPs used
+by the yippy paper validation pipeline. When ExEP's catalog comes
+online, the discovery API here grows back into a thin proxy over it.
 
 Public API:
 - ``fetch_yip(name=None, *, telescope=None, coronagraph=None, sampling=None,
@@ -47,97 +54,34 @@ logging.getLogger("pooch").setLevel(logging.WARNING)
 CACHE_DIR_ENV_VAR = "YIPPY_CACHE_DIR"
 
 # ---------------------------------------------------------------------------
-# Zenodo DOI for the YIP archive. Updated when a new version of the record
-# is published on Zenodo.
+# Release tag carrying the YIP zip assets on this repo's GitHub releases.
+# Bump to ``data-vN`` when the underlying YIP files change.
 # ---------------------------------------------------------------------------
-ZENODO_DOI: str = "10.5281/zenodo.20146086"
+DATA_RELEASE_TAG: str = "data-v1"
+_DATA_BASE_URL: str = (
+    f"https://github.com/CoreySpohn/yippy/releases/download/{DATA_RELEASE_TAG}/"
+)
 
 
 # ---------------------------------------------------------------------------
 # Catalog
+#
+# Intentionally minimal: long-term YIP hosting is ExEP's responsibility.
+# Only the two reference YIPs used by the yippy paper validation pipeline
+# live here.
 # ---------------------------------------------------------------------------
 CATALOG: dict[str, dict[str, Any]] = {
-    # EAC1 (1D)
-    "eac1_aavc_1d": {
+    "eac1_aavc_2d": {
         "telescope": "eac1",
         "coronagraph": "aavc",
         "designer": "Susan Redmond",
-        "md5": "md5:5cb5fe8bd29c8f4d2abf47b259535061",
-    },
-    "eac1_spc_1d": {
-        "telescope": "eac1",
-        "coronagraph": "spc",
-        "designer": "Jessica Gersh-Range",
-        "md5": "md5:1b70ddebb8b89226b206c6d08817542d",
-    },
-    "eac1_lcppc_v1_1d": {
-        "telescope": "eac1",
-        "coronagraph": "lcppc_v1",
-        "designer": "David Doelman",
-        "md5": "md5:189101a21fdffe7e2a013712f34da83b",
+        "md5": "md5:1f4892faff18e55cbec9781a055bea4d",
     },
     "eac1_optimal_order_6_1d": {
         "telescope": "eac1",
         "coronagraph": "optimal_order_6",
         "designer": "Rus Belikov",
         "md5": "md5:df52540008a0e85467720ec91c3a84b8",
-    },
-    "eac1_pic_400channels_order6_1d": {
-        "telescope": "eac1",
-        "coronagraph": "pic_400channels_order6",
-        "designer": "Dan Sirbu",
-        "md5": "md5:b90c4600fc32edfc6007c7fff2642036",
-    },
-    # EAC2 (1D)
-    "eac2_lcppc_v1_1d": {
-        "telescope": "eac2",
-        "coronagraph": "lcppc_v1",
-        "designer": "David Doelman",
-        "md5": "md5:80cfbad3f63eb7c49b467342d19e32cc",
-    },
-    "eac2_optimal_order_6_1d": {
-        "telescope": "eac2",
-        "coronagraph": "optimal_order_6",
-        "designer": "Rus Belikov",
-        "md5": "md5:579c80c9e3f7f52a0ebd18858485fa4b",
-    },
-    "eac2_pic_400channels_order6_1d": {
-        "telescope": "eac2",
-        "coronagraph": "pic_400channels_order6",
-        "designer": "Dan Sirbu",
-        "md5": "md5:384c79d3ac1777c0c2680348cb84fcce",
-    },
-    # EAC3 (1D)
-    "eac3_lcppc_v1_1d": {
-        "telescope": "eac3",
-        "coronagraph": "lcppc_v1",
-        "designer": "David Doelman",
-        "md5": "md5:dd97beca90e8a1f47c0efe8490d40f27",
-    },
-    "eac3_optimal_order_6_1d": {
-        "telescope": "eac3",
-        "coronagraph": "optimal_order_6",
-        "designer": "Rus Belikov",
-        "md5": "md5:7c7a76d324f5b62ba2f0523534dd8076",
-    },
-    "eac3_aplc_1d": {
-        "telescope": "eac3",
-        "coronagraph": "aplc",
-        "designer": "Bryony Nickson",
-        "md5": "md5:2c880190f36d92d7d4c5785a9ebf994a",
-    },
-    "eac3_pic_400channels_order6_1d": {
-        "telescope": "eac3",
-        "coronagraph": "pic_400channels_order6",
-        "designer": "Dan Sirbu",
-        "md5": "md5:5b530b87c2ee6020118455789ac4328e",
-    },
-    # EAC1 (2D)
-    "eac1_aavc_2d": {
-        "telescope": "eac1",
-        "coronagraph": "aavc",
-        "designer": "Susan Redmond",
-        "md5": "md5:1f4892faff18e55cbec9781a055bea4d",
     },
 }
 
@@ -159,7 +103,7 @@ def _make_pikachu(cache_dir_path: str | Path) -> pooch.Pooch:
     """Build a pooch instance for the YIP catalog at ``cache_dir_path``."""
     return pooch.create(
         path=cache_dir_path,
-        base_url=f"doi:{ZENODO_DOI}/",
+        base_url=_DATA_BASE_URL,
         registry={f"{name}.zip": meta["md5"] for name, meta in CATALOG.items()},
     )
 

@@ -15,9 +15,15 @@ VALID_HASH = re.compile(r"^md5:[0-9a-f]{32}$")
 VALID_SAMPLING_SUFFIXES = ("_1d", "_2d")
 
 
-def test_catalog_has_13_entries():
-    """Catalog must contain exactly 13 entries (12 1D + 1 2D)."""
-    assert len(datasets.CATALOG) == 13
+def test_catalog_has_two_reference_entries():
+    """Catalog ships the two reference YIPs used by the yippy paper.
+
+    Long-term YIP hosting is ExEP's responsibility; yippy hosts only the
+    minimum needed to reproduce the validation figures. If the catalog
+    grows beyond two reference YIPs, that decision should be reflected
+    by updating this expectation deliberately.
+    """
+    assert set(datasets.CATALOG) == {"eac1_aavc_2d", "eac1_optimal_order_6_1d"}
 
 
 def test_catalog_keys_match_telescope_coronagraph_sampling():
@@ -62,35 +68,27 @@ def test_list_yips_no_filter_returns_all():
 def test_list_yips_telescope_filter():
     """Filtering by telescope returns only matching entries."""
     names = datasets.list_yips(telescope="eac1")
-    assert len(names) == 6  # 5 1D + 1 2D for eac1
-    assert all(n.startswith("eac1_") for n in names)
+    assert sorted(names) == ["eac1_aavc_2d", "eac1_optimal_order_6_1d"]
 
 
 def test_list_yips_coronagraph_filter():
-    """Filtering by coronagraph returns matches across telescopes and samplings."""
-    names = datasets.list_yips(coronagraph="aavc")
-    assert sorted(names) == ["eac1_aavc_1d", "eac1_aavc_2d"]
-
-
-def test_list_yips_combined_filter():
-    """Combining telescope and coronagraph filters narrows when sampling is unique."""
-    names = datasets.list_yips(telescope="eac3", coronagraph="aplc")
-    assert names == ["eac3_aplc_1d"]
+    """Filtering by coronagraph isolates one entry in the minimal catalog."""
+    assert datasets.list_yips(coronagraph="aavc") == ["eac1_aavc_2d"]
+    assert datasets.list_yips(coronagraph="optimal_order_6") == [
+        "eac1_optimal_order_6_1d"
+    ]
 
 
 def test_list_yips_sampling_filter():
     """Filtering by sampling returns all entries of that regime."""
     assert datasets.list_yips(sampling="2d") == ["eac1_aavc_2d"]
-    assert len(datasets.list_yips(sampling="1d")) == 12
+    assert datasets.list_yips(sampling="1d") == ["eac1_optimal_order_6_1d"]
 
 
 def test_list_yips_three_axis_filter_unique():
     """Telescope + coronagraph + sampling narrows to exactly one entry."""
     assert datasets.list_yips(telescope="eac1", coronagraph="aavc", sampling="2d") == [
         "eac1_aavc_2d"
-    ]
-    assert datasets.list_yips(telescope="eac1", coronagraph="aavc", sampling="1d") == [
-        "eac1_aavc_1d"
     ]
 
 
@@ -117,7 +115,7 @@ def test_yip_exists_unknown_name():
 
 def test_yip_info_returns_metadata_dict():
     """yip_info() returns the catalog metadata dict for a known entry."""
-    info = datasets.yip_info("eac1_aavc_1d")
+    info = datasets.yip_info("eac1_aavc_2d")
     assert info["telescope"] == "eac1"
     assert info["coronagraph"] == "aavc"
     assert "md5" in info
@@ -132,7 +130,7 @@ def test_yip_info_unknown_raises_keyerror():
 def test_fetch_yip_both_name_and_kwargs_raises():
     """Passing both a name and filter kwargs raises TypeError."""
     with pytest.raises(TypeError, match="either"):
-        datasets.fetch_yip("eac1_aavc_1d", telescope="eac1")
+        datasets.fetch_yip("eac1_aavc_2d", telescope="eac1")
 
 
 def test_fetch_yip_neither_name_nor_kwargs_raises():
@@ -156,10 +154,13 @@ def test_fetch_yip_zero_match_query_raises_valueerror():
 
 
 def test_fetch_yip_multi_match_query_raises_valueerror():
-    """A structured query that matches multiple entries raises ValueError."""
-    # eac1 + aavc matches both _1d and _2d; sampling must also be passed.
+    """A structured query that matches multiple entries raises ValueError.
+
+    With the minimal two-YIP catalog, ``telescope='eac1'`` matches both
+    entries because they share that prefix.
+    """
     with pytest.raises(ValueError, match="multiple"):
-        datasets.fetch_yip(telescope="eac1", coronagraph="aavc")
+        datasets.fetch_yip(telescope="eac1")
 
 
 def test_cache_dir_returns_platform_default_when_env_unset(monkeypatch):
@@ -253,8 +254,8 @@ def test_fetch_yip_cache_path_builds_separate_pooch(monkeypatch, tmp_path):
 
 @pytest.mark.network
 @pytest.mark.skipif(
-    datasets.ZENODO_DOI.endswith("PLACEHOLDER"),
-    reason="Zenodo DOI not yet set; v1 release pending.",
+    datasets.DATA_RELEASE_TAG.endswith("PLACEHOLDER"),
+    reason="Release tag not yet set; data-vN release pending.",
 )
 def test_fetch_smallest_yip_loads_as_coronagraph(tmp_path):
     """End-to-end: pull the smallest available YIP and load yippy.Coronagraph."""

@@ -12,21 +12,24 @@ coro = Coronagraph("path/to/eac1_aavc_2d")
 
 For convenience, yippy also ships a small curated catalog of YIPs that
 can be downloaded on demand via [pooch](https://www.fatiando.org/pooch/).
-The catalog is currently hosted on Zenodo and cached locally on first
-use.
+The catalog is hosted as assets on a tagged GitHub release of the yippy
+repository and cached locally on first use.
 
 ```{note}
-The Zenodo-hosted catalog is **beta**. A non-Zenodo distribution channel
-may replace it in the near future. For reproducible or production work,
-manage your own YIP paths and pass them to `Coronagraph(path)` directly.
+The catalog is intentionally minimal. Long-term YIP hosting is ExEP's
+responsibility, and only the two reference YIPs used by the yippy paper
+validation pipeline are shipped here. For production work or YIPs
+outside this set, manage your own YIP paths and pass them to
+`Coronagraph(path)` directly.
 ```
 
 ## Available datasets
 
 The table below is generated from `yippy.datasets.CATALOG` at doc-build
 time and lists every YIP yippy knows about. Every entry in the catalog
-is fetchable; new YIPs are added only once their archive is on Zenodo
-and the md5 hash is locked into the catalog.
+is fetchable; new YIPs are added only when the underlying release is
+bumped (see `DATA_RELEASE_TAG` in `yippy.datasets`) and the md5 hash is
+locked into the catalog.
 
 ```{include} _generated/yip_catalog.md
 ```
@@ -155,17 +158,11 @@ Three small helpers let you browse the catalog without downloading anything.
 ```python
 >>> from yippy import list_yips
 >>> list_yips(telescope="eac1")
-['eac1_aavc_1d',
- 'eac1_spc_1d',
- 'eac1_lcppc_v1_1d',
- 'eac1_optimal_order_6_1d',
- 'eac1_pic_400channels_order6_1d',
- 'eac1_aavc_2d']
+['eac1_aavc_2d',
+ 'eac1_optimal_order_6_1d']
 
 >>> list_yips(coronagraph="optimal_order_6")
-['eac1_optimal_order_6_1d',
- 'eac2_optimal_order_6_1d',
- 'eac3_optimal_order_6_1d']
+['eac1_optimal_order_6_1d']
 
 >>> list_yips(sampling="2d")
 ['eac1_aavc_2d']

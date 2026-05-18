@@ -3,11 +3,11 @@
 import pytest
 
 from yippy import Coronagraph
-from yippy.datasets import CATALOG, ZENODO_DOI
+from yippy.datasets import CATALOG, DATA_RELEASE_TAG
 
 requires_available_yip = pytest.mark.skipif(
-    CATALOG["eac1_aavc_2d"]["md5"] is None or ZENODO_DOI.endswith("PLACEHOLDER"),
-    reason="YIP not yet fetchable: md5 unset or Zenodo DOI is placeholder.",
+    CATALOG["eac1_aavc_2d"]["md5"] is None or DATA_RELEASE_TAG.endswith("PLACEHOLDER"),
+    reason="YIP not yet fetchable: md5 unset or release tag is placeholder.",
 )
 
 

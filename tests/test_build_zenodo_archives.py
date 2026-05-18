@@ -132,18 +132,18 @@ def test_build_archive_is_deterministic(tmp_path):
 def test_emit_catalog_block_is_valid_python(tmp_path):
     """The printed CATALOG block must be re-parseable as a Python dict."""
     updates = {
-        "eac1_aavc_1d": "md5:" + "a" * 32,
-        "eac1_spc_1d": None,  # awaiting fresh build
+        "eac1_aavc_2d": "md5:" + "a" * 32,
+        "eac1_optimal_order_6_1d": None,  # awaiting fresh build
     }
     block = bza.format_catalog_block(updates)
     # Confirm Python can evaluate it
     ns: dict = {}
     exec(block, ns)
     parsed = ns["CATALOG"]
-    assert parsed["eac1_aavc_1d"]["md5"] == "md5:" + "a" * 32
-    assert parsed["eac1_aavc_1d"]["designer"] == "Susan Redmond"
-    assert parsed["eac1_spc_1d"]["md5"] is None
-    assert parsed["eac1_spc_1d"]["designer"] == "Jessica Gersh-Range"
-    # Must include all 13 catalog entries (12 1D + 1 2D) even when only
-    # some are updated.
-    assert len(parsed) == 13
+    assert parsed["eac1_aavc_2d"]["md5"] == "md5:" + "a" * 32
+    assert parsed["eac1_aavc_2d"]["designer"] == "Susan Redmond"
+    assert parsed["eac1_optimal_order_6_1d"]["md5"] is None
+    assert parsed["eac1_optimal_order_6_1d"]["designer"] == "Rus Belikov"
+    # The trimmed minimal catalog ships exactly the two reference YIPs
+    # even when only some are updated.
+    assert len(parsed) == 2

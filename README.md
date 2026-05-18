@@ -150,11 +150,11 @@ throughput and core area are computed using an adaptive aperture that includes
 all oversampled pixels exceeding `ratio * peak`. This matches AYO's
 `photap_frac` / `omega_lod` calculation and is recommended for ETC integration.
 
-## Example data (beta)
+## Example data
 
-For convenience, yippy can download a small catalog of example YIPs hosted
-on Zenodo. This is useful for tutorials, CI, and "I just want to try it"
-exploration:
+Two reference YIPs ship as GitHub release assets on this repo and can be
+fetched on demand. This is useful for tutorials, CI, and "I just want to
+try it" exploration:
 
 ```python
 from yippy import Coronagraph, fetch_yip
@@ -163,10 +163,11 @@ yip_path = fetch_yip("eac1_aavc_2d")   # download (cached after first call)
 coro     = Coronagraph(yip_path)
 ```
 
-> **Beta.** The Zenodo-hosted YIP archive is a stopgap. A non-Zenodo
-> distribution channel may replace it in the near future. For production
-> or reproducible work, manage your own YIP paths and pass them to
-> `Coronagraph(path)` directly.
+The catalog is currently minimal. Long-term YIP hosting will be provided by
+ExEP, and only the two reference YIPs used by the yippy paper validation
+pipeline and pyEDITH (`eac1_aavc_2d` and `eac1_optimal_order_6_1d`) are shipped here. For
+production work or YIPs outside this set, manage your own YIP paths and pass
+them to `Coronagraph(path)` directly.
 
 See [`yippy.list_yips()`](https://yippy.readthedocs.io/en/latest/datasets.html)
 for the available names and the
