@@ -156,11 +156,18 @@ def format_catalog_block(updates: dict[str, str | None]) -> str:
     for name, meta in CATALOG.items():
         md5 = updates.get(name, meta["md5"])
         md5_repr = "None" if md5 is None else repr(md5)
-        lines.append(
-            f'    {name!r}: {{"telescope": {meta["telescope"]!r}, '
-            f'"coronagraph": {meta["coronagraph"]!r}, '
-            f'"designer": {meta["designer"]!r}, "md5": {md5_repr}}},'
-        )
+        # telescope is optional for design-study YIPs without a fixed
+        # telescope-architecture pairing; sampling may be inferred from
+        # the key suffix when not set explicitly.
+        parts = []
+        if "telescope" in meta:
+            parts.append(f'"telescope": {meta["telescope"]!r}')
+        parts.append(f'"coronagraph": {meta["coronagraph"]!r}')
+        parts.append(f'"designer": {meta["designer"]!r}')
+        if "sampling" in meta and not (name.endswith("_1d") or name.endswith("_2d")):
+            parts.append(f'"sampling": {meta["sampling"]!r}')
+        parts.append(f'"md5": {md5_repr}')
+        lines.append(f"    {name!r}: {{{', '.join(parts)}}},")
     lines.append("}")
     return "\n".join(lines)
 

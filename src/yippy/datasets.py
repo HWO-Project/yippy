@@ -13,10 +13,10 @@ release-please. To publish new YIPs: bump ``DATA_RELEASE_TAG`` to a new
 ``data-vN``, attach the updated zips to that release, and refresh the
 md5 hashes here.
 
-The two-YIP catalog is intentionally minimal: long-term YIP hosting will
-be provided by ExEP, and yippy hosts only the two reference YIPs used
-by the yippy paper validation pipeline. When ExEP's catalog comes
-online, the discovery API here grows back into a thin proxy over it.
+The catalog currently includes only the two reference YIPs used by the
+yippy paper validation pipeline. Long-term YIP hosting will be provided
+by ExEP, and when that catalog comes online the discovery API here will
+grow back into a thin proxy over it.
 
 Public API:
 - ``fetch_yip(name=None, *, telescope=None, coronagraph=None, sampling=None,
@@ -57,7 +57,7 @@ CACHE_DIR_ENV_VAR = "YIPPY_CACHE_DIR"
 # Release tag carrying the YIP zip assets on this repo's GitHub releases.
 # Bump to ``data-vN`` when the underlying YIP files change.
 # ---------------------------------------------------------------------------
-DATA_RELEASE_TAG: str = "data-v1"
+DATA_RELEASE_TAG: str = "data-v2"
 _DATA_BASE_URL: str = (
     f"https://github.com/CoreySpohn/yippy/releases/download/{DATA_RELEASE_TAG}/"
 )
@@ -66,9 +66,8 @@ _DATA_BASE_URL: str = (
 # ---------------------------------------------------------------------------
 # Catalog
 #
-# Intentionally minimal: long-term YIP hosting will be provided by ExEP.
-# Only the two reference YIPs used by the yippy paper validation pipeline
-# live here.
+# Currently a handful of reference YIPs from the Coronagraph Design Survey.
+# Long-term YIP hosting will be provided by ExEP.
 # ---------------------------------------------------------------------------
 CATALOG: dict[str, dict[str, Any]] = {
     "eac1_aavc_2d": {
@@ -83,19 +82,34 @@ CATALOG: dict[str, dict[str, Any]] = {
         "designer": "Rus Belikov",
         "md5": "md5:df52540008a0e85467720ec91c3a84b8",
     },
+    "usort_offaxis_ovc": {
+        # No telescope-architecture label; an off-axis vortex coronagraph
+        # design study with no fixed EAC pairing.
+        "coronagraph": "offaxis_ovc",
+        "designer": "Susan Redmond, Emiel Por",
+        "sampling": "1d",
+        "md5": "md5:f288b20f329412917d0a393a4d135439",
+    },
 }
 
 
-# Inject the sampling regime as a derived field on each catalog entry, parsed
-# from the key suffix. Keeps the manual CATALOG above tidy while exposing
-# sampling as a filterable axis in list_yips / fetch_yip.
+# Inject the sampling regime as a derived field on each catalog entry. Names
+# that follow the ``{telescope}_{coronagraph}_(1d|2d)`` convention can omit
+# ``sampling`` from their entry and have it parsed from the key suffix;
+# entries whose name does not fit the convention (e.g. legacy or
+# unconventionally-named YIPs) must set ``sampling`` explicitly.
 for _name, _meta in CATALOG.items():
+    if "sampling" in _meta:
+        continue
     if _name.endswith("_1d"):
         _meta["sampling"] = "1d"
     elif _name.endswith("_2d"):
         _meta["sampling"] = "2d"
     else:
-        raise RuntimeError(f"Catalog key {_name!r} must end with `_1d` or `_2d`")
+        raise RuntimeError(
+            f"Catalog entry {_name!r} must either set 'sampling' explicitly "
+            "or end with `_1d` / `_2d`."
+        )
 del _name, _meta
 
 

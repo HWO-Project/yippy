@@ -152,9 +152,9 @@ all oversampled pixels exceeding `ratio * peak`. This matches AYO's
 
 ## Example data
 
-Two reference YIPs ship as GitHub release assets on this repo and can be
-fetched on demand. This is useful for tutorials, CI, and "I just want to
-try it" exploration:
+A small set of reference YIPs ships as GitHub release assets on this repo
+and can be fetched on demand. This is useful for tutorials, CI, and "I just
+want to try it" exploration:
 
 ```python
 from yippy import Coronagraph, fetch_yip
@@ -163,11 +163,13 @@ yip_path = fetch_yip("eac1_aavc_2d")   # download (cached after first call)
 coro     = Coronagraph(yip_path)
 ```
 
-The catalog is currently minimal. Long-term YIP hosting will be provided by
-ExEP, and only the two reference YIPs used by the yippy paper validation
-pipeline and pyEDITH (`eac1_aavc_2d` and `eac1_optimal_order_6_1d`) are shipped here. For
-production work or YIPs outside this set, manage your own YIP paths and pass
-them to `Coronagraph(path)` directly.
+The catalog is currently minimal. Long-term YIP hosting will be provided
+by ExEP, and only a handful of reference YIPs from the Coronagraph Design
+Survey are shipped here: `eac1_aavc_2d` and `eac1_optimal_order_6_1d`
+(used by the yippy paper validation pipeline and as the pyEDITH default
+coronagraph) and `usort_offaxis_ovc` (an off-axis vortex coronagraph
+design study). For production work or YIPs outside this set, manage your
+own YIP paths and pass them to `Coronagraph(path)` directly.
 
 See [`yippy.list_yips()`](https://yippy.readthedocs.io/en/latest/datasets.html)
 for the available names and the

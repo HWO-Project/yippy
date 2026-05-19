@@ -15,20 +15,15 @@ VALID_HASH = re.compile(r"^md5:[0-9a-f]{32}$")
 VALID_SAMPLING_SUFFIXES = ("_1d", "_2d")
 
 
-def test_catalog_has_two_reference_entries():
-    """Catalog ships the two reference YIPs used by the yippy paper.
+def test_catalog_keys_match_telescope_coronagraph_sampling_when_conventional():
+    """Conventionally-named keys must equal ``{telescope}_{coronagraph}_(1d|2d)``.
 
-    Long-term YIP hosting will be provided by ExEP, and yippy ships only
-    the minimum needed to reproduce the validation figures. If the
-    catalog grows beyond two reference YIPs, that decision should be
-    reflected by updating this expectation deliberately.
+    Entries that omit the suffix are exempt and must instead set
+    ``sampling`` explicitly (covered by :func:`test_catalog_sampling_set`).
     """
-    assert set(datasets.CATALOG) == {"eac1_aavc_2d", "eac1_optimal_order_6_1d"}
-
-
-def test_catalog_keys_match_telescope_coronagraph_sampling():
-    """Each key must equal ``{telescope}_{coronagraph}_(1d|2d)``."""
     for name, meta in datasets.CATALOG.items():
+        if not (name.endswith("_1d") or name.endswith("_2d")):
+            continue
         prefix = f"{meta['telescope']}_{meta['coronagraph']}"
         assert name.startswith(prefix), f"key {name!r} doesn't start with {prefix!r}"
         suffix = name[len(prefix) :]
@@ -38,8 +33,12 @@ def test_catalog_keys_match_telescope_coronagraph_sampling():
 
 
 def test_catalog_required_fields():
-    """Every entry must carry telescope, coronagraph, designer, and md5 fields."""
-    required = {"telescope", "coronagraph", "designer", "md5"}
+    """Every entry must carry coronagraph, designer, md5, and sampling.
+
+    ``telescope`` is optional for design-study YIPs that have no fixed
+    telescope-architecture pairing.
+    """
+    required = {"coronagraph", "designer", "md5", "sampling"}
     for name, meta in datasets.CATALOG.items():
         missing = required - set(meta)
         assert not missing, f"{name!r} missing fields: {missing}"
@@ -82,7 +81,10 @@ def test_list_yips_coronagraph_filter():
 def test_list_yips_sampling_filter():
     """Filtering by sampling returns all entries of that regime."""
     assert datasets.list_yips(sampling="2d") == ["eac1_aavc_2d"]
-    assert datasets.list_yips(sampling="1d") == ["eac1_optimal_order_6_1d"]
+    assert sorted(datasets.list_yips(sampling="1d")) == [
+        "eac1_optimal_order_6_1d",
+        "usort_offaxis_ovc",
+    ]
 
 
 def test_list_yips_three_axis_filter_unique():

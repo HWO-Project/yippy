@@ -144,6 +144,5 @@ def test_emit_catalog_block_is_valid_python(tmp_path):
     assert parsed["eac1_aavc_2d"]["designer"] == "Susan Redmond"
     assert parsed["eac1_optimal_order_6_1d"]["md5"] is None
     assert parsed["eac1_optimal_order_6_1d"]["designer"] == "Rus Belikov"
-    # The trimmed minimal catalog ships exactly the two reference YIPs
-    # even when only some are updated.
-    assert len(parsed) == 2
+    # All catalog entries are emitted even when only some are updated.
+    assert len(parsed) == len(bza.CATALOG)
