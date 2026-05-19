@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.0](https://github.com/CoreySpohn/yippy/compare/v2.7.3...v2.8.0) (2026-05-19)
+
+
+### Features
+
+* Adding usort offaxis OVC data and removing hard coded structure ([eceefa3](https://github.com/CoreySpohn/yippy/commit/eceefa308193a218ead5aeebcf47e9b40ba1f32c))
+
 ## [2.7.3](https://github.com/CoreySpohn/yippy/compare/v2.7.2...v2.7.3) (2026-05-18)
 
 
