@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.1](https://github.com/CoreySpohn/yippy/compare/v2.8.0...v2.8.1) (2026-05-19)
+
+
+### Bug Fixes
+
+* Fixing bug in the yip catalog table that messed up the readthedocs build ([5fa3651](https://github.com/CoreySpohn/yippy/commit/5fa36512c637bcaf4caaffc51cc0260b453017b4))
+
 ## [2.8.0](https://github.com/CoreySpohn/yippy/compare/v2.7.3...v2.8.0) (2026-05-19)
 
 
