@@ -70,13 +70,17 @@ def _generate_yip_catalog_table(app):
     from yippy.datasets import CATALOG
 
     rows = [
-        "| YIP name | Telescope | Coronagraph | Designer |",
-        "|---|---|---|---|",
+        "| YIP name | Telescope | Coronagraph | Sampling | Designer |",
+        "|---|---|---|---|---|",
     ]
+    # Telescope is optional for design-study YIPs that have no fixed
+    # telescope-architecture pairing; render those cells as an em dash.
     for name, meta in sorted(CATALOG.items()):
+        telescope = meta.get("telescope")
+        telescope_cell = f"`{telescope}`" if telescope else "--"
         rows.append(
-            f"| `{name}` | `{meta['telescope']}` | `{meta['coronagraph']}` | "
-            f"{meta['designer']} |"
+            f"| `{name}` | {telescope_cell} | `{meta['coronagraph']}` | "
+            f"`{meta['sampling']}` | {meta['designer']} |"
         )
 
     out_dir = Path(__file__).parent / "_generated"
