@@ -344,12 +344,15 @@ class Coronagraph:
         self.psf_datacube = psfs
 
     def _create_psf_datacube_gpu(self, batch_size=128):
-        """Generate PSF datacube on GPU/TPU, keeping data on-device.
+        """Generate PSF datacube on GPU/TPU, transferring each batch to host.
 
         Uses vmap+jit (``offax.create_psfs``) instead of shard_map to avoid
         the CPU multi-device overhead that ``create_psfs_parallel`` carries.
-        Accumulates batches as JAX arrays on the accelerator, eliminating
-        the CPU<->GPU round-trips that bottleneck the standard path.
+        Each batch is copied to a pre-allocated host buffer immediately after
+        synthesis, then ``np.save`` writes the final cube. The on-device
+        accumulation + ``jnp.concatenate`` pattern is avoided because it
+        silently corrupts output on some GPUs (Blackwell observed; A100 with
+        broken CUDA12 plugin observed).
 
         Args:
             batch_size (int):
@@ -388,18 +391,21 @@ class Coronagraph:
                 f"on {backend} ({n_points} points)..."
             )
 
-            psf_batches = []
+            # Pre-allocate host buffer and transfer each batch immediately.
+            # Avoids a silent jnp.concatenate corruption observed on some GPUs
+            # (e.g. Blackwell / RTX PRO 6000) when aggregating many GPU buffers
+            # before save.
+            psfs = np.empty(psfs_shape, dtype=np.float32)
+            flat_view = psfs.reshape(-1, self.npixels, self.npixels)
             with tqdm(total=n_points, desc="Computing PSFs") as pb:
                 for i in range(0, n_points, batch_size):
                     batch_x = jnp.array(points[i : i + batch_size, 0])
                     batch_y = jnp.array(points[i : i + batch_size, 1])
                     batch_psfs = self.offax.create_psfs(batch_x, batch_y)
-                    batch_psfs.block_until_ready()
-                    psf_batches.append(batch_psfs)
+                    flat_view[i : i + batch_size] = np.asarray(batch_psfs)
                     pb.update(batch_x.shape[0])
 
-            psfs = jnp.concatenate(psf_batches, axis=0).reshape(psfs_shape)
-            jnp.save(datacube_path, psfs)
+            np.save(datacube_path, psfs)
             logger.info(f"PSF datacube saved to {datacube_path}.")
 
         target_device = jax.devices()[0]
