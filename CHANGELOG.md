@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.2](https://github.com/CoreySpohn/yippy/compare/v2.8.1...v2.8.2) (2026-05-25)
+
+
+### Bug Fixes
+
+* Route psf datacube through numpy instead of jnp to avoid concatenate corruption in H100 ([dc11d62](https://github.com/CoreySpohn/yippy/commit/dc11d62ee0442bcf58da85674fac9758c5500447))
+
 ## [2.8.1](https://github.com/CoreySpohn/yippy/compare/v2.8.0...v2.8.1) (2026-05-19)
 
 
