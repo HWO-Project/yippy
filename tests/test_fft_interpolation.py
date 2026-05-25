@@ -107,7 +107,7 @@ class TestDarkHoleContrast:
         significant artifacts that would artificially brighten the dark hole
         region compared to the PSFs at the original grid points.
         """
-        pixel_scale = float(offax.pixel_scale.value)
+        pixel_scale_arcsec = float(offax.pixel_scale_arcsec.value)
 
         # Pick a midpoint between two grid points
         mid_idx = len(grid_offsets) // 2
@@ -125,7 +125,7 @@ class TestDarkHoleContrast:
         ny, nx = interp_psf.shape
         cy, cx = ny // 2, nx // 2
         yy, xx = np.mgrid[:ny, :nx]
-        rr = np.sqrt((xx - cx) ** 2 + (yy - cy) ** 2) * pixel_scale
+        rr = np.sqrt((xx - cx) ** 2 + (yy - cy) ** 2) * pixel_scale_arcsec
 
         annulus = (rr >= 3.0) & (rr <= 10.0)
         if not np.any(annulus):

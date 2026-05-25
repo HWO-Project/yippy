@@ -22,7 +22,7 @@ class TestSeparationMap:
         """Separation at the grid center is zero."""
         r = coro.separation_map()
         cy, cx = round(coro.header.ycenter), round(coro.header.xcenter)
-        assert r[cy, cx] == pytest.approx(0, abs=coro.pixel_scale.value)
+        assert r[cy, cx] == pytest.approx(0, abs=coro.pixel_scale_arcsec.value)
 
     def test_radially_symmetric(self, coro):
         """Values at equal pixel distance from center should be equal."""

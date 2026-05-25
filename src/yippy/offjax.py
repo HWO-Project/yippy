@@ -22,7 +22,7 @@ class OffJAX(OffAx):
     Memory-efficient: stores PSFs in flat array with index mapping.
 
     Attributes:
-        pixel_scale (Quantity):
+        pixel_scale_arcsec (Quantity):
             Pixel scale of the PSF data in lambda/D.
         center_x (Quantity):
             Central x position in the PSF data.
@@ -39,7 +39,7 @@ class OffJAX(OffAx):
         yip_dir: Path,
         offax_data_file: str,
         offax_offsets_file: str,
-        pixel_scale: Quantity,
+        pixel_scale_arcsec: Quantity,
         x_symmetric: bool,
         y_symmetric: bool,
         downsample_shape: tuple[int, int] | None = None,
@@ -53,7 +53,7 @@ class OffJAX(OffAx):
                 Name of the file containing the PSF data.
             offax_offsets_file:
                 Name of the file containing the offsets data.
-            pixel_scale:
+            pixel_scale_arcsec:
                 Pixel scale of the PSF data in lambda/D.
             x_symmetric:
                 Whether the PSFs are symmetric in x.
@@ -68,7 +68,7 @@ class OffJAX(OffAx):
             yip_dir,
             offax_data_file,
             offax_offsets_file,
-            pixel_scale,
+            pixel_scale_arcsec,
             x_symmetric,
             y_symmetric,
             downsample_shape=downsample_shape,
@@ -124,7 +124,7 @@ class OffJAX(OffAx):
                 return synthesize_psf_separable(
                     x,
                     y,
-                    pixel_scale=self.pixel_scale.value,
+                    pixel_scale_arcsec=self.pixel_scale_arcsec.value,
                     flat_psfs=psfs,
                     x_offsets=x_off,
                     y_offsets=y_off,
@@ -146,7 +146,7 @@ class OffJAX(OffAx):
                 return synthesize_psf_idw(
                     x,
                     y,
-                    pixel_scale=self.pixel_scale.value,
+                    pixel_scale_arcsec=self.pixel_scale_arcsec.value,
                     flat_psfs=psfs,
                     flat_x_offsets=x_off,
                     flat_y_offsets=y_off,

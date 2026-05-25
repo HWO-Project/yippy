@@ -39,7 +39,7 @@ class OffAx:
     calls the psf object after converting units.
 
     Attributes:
-        pixel_scale (Quantity):
+        pixel_scale_arcsec (Quantity):
             Pixel scale of the PSF data in lambda/D.
         center_x (Quantity):
             Central x position in the PSF data.
@@ -57,7 +57,7 @@ class OffAx:
             Name of the file containing the PSF data.
         offax_offsets_file (str):
             Name of the file containing the offsets data.
-        pixel_scale (Quantity):
+        pixel_scale_arcsec (Quantity):
             Pixel scale of the PSF data in lambda/D.
     """
 
@@ -66,7 +66,7 @@ class OffAx:
         yip_dir: Path,
         offax_data_file: str,
         offax_offsets_file: str,
-        pixel_scale: Quantity,
+        pixel_scale_arcsec: Quantity,
         x_symmetric: bool,
         y_symmetric: bool,
         downsample_shape: tuple[int, int] | None = None,
@@ -80,7 +80,7 @@ class OffAx:
                 Name of the file containing the PSF data.
             offax_offsets_file:
                 Name of the file containing the offsets data.
-            pixel_scale:
+            pixel_scale_arcsec:
                 Pixel scale of the PSF data in lambda/D.
             x_symmetric:
                 Whether the PSFs are symmetric in x.
@@ -90,10 +90,10 @@ class OffAx:
                 Optional target shape (ny, nx) to downsample PSFs to.
                 If provided, all PSFs will be resampled to this shape
                 immediately after loading, conserving total flux.
-                The pixel_scale will be updated accordingly.
+                The pixel_scale_arcsec will be updated accordingly.
         """
         # Pixel scale in lambda/D
-        self.pixel_scale = pixel_scale
+        self.pixel_scale_arcsec = pixel_scale_arcsec
 
         # Load symmetry
         self.x_symmetric = x_symmetric
@@ -192,7 +192,7 @@ class OffAx:
 
         # A lambda/D offset that represents the greatest separation where the PSF's
         # center is within the image. This applies to all coronagraph types.
-        self.max_offset_in_image = psfs.shape[1] / 2 * u.pix * self.pixel_scale
+        self.max_offset_in_image = psfs.shape[1] / 2 * u.pix * self.pixel_scale_arcsec
 
         # Downsample PSFs if requested
         if downsample_shape is not None:
@@ -201,18 +201,20 @@ class OffAx:
                 f"Downsampling PSFs from {original_shape} to {downsample_shape}"
             )
             psfs, new_pixscale = downsample_psfs(
-                psfs, self.pixel_scale.value, downsample_shape
+                psfs, self.pixel_scale_arcsec.value, downsample_shape
             )
             # Update pixel scale with the new value (preserving units)
-            self.pixel_scale = new_pixscale * self.pixel_scale.unit
-            logger.info(f"New pixel scale: {self.pixel_scale}")
+            self.pixel_scale_arcsec = new_pixscale * self.pixel_scale_arcsec.unit
+            logger.info(f"New pixel scale: {self.pixel_scale_arcsec}")
 
             # Update center positions for the new PSF shape
             self.center_x = psfs.shape[2] / 2 * u.pix
             self.center_y = psfs.shape[1] / 2 * u.pix
 
             # Update max_offset_in_image after downsampling
-            self.max_offset_in_image = psfs.shape[1] / 2 * u.pix * self.pixel_scale
+            self.max_offset_in_image = (
+                psfs.shape[1] / 2 * u.pix * self.pixel_scale_arcsec
+            )
 
         self.flat_psfs = psfs
         self.flat_offsets = offsets
@@ -356,7 +358,9 @@ class OffAx:
         # Combine the PSFs
         if len(near_psfs) > 1:
             # Get the shift (in pixels) required to align with the input (x, y)
-            near_shifts = (np.array([_x, _y]) - near_offsets) / self.pixel_scale.value
+            near_shifts = (
+                np.array([_x, _y]) - near_offsets
+            ) / self.pixel_scale_arcsec.value
 
             # Calculate the distance of each PSF from the input (x, y)
             near_diffs = np.linalg.norm(near_shifts, axis=1)
@@ -403,8 +407,8 @@ class OffAx:
         if remaining_x_shift != 0 or remaining_y_shift != 0:
             psf = fft_shift(
                 psf,
-                remaining_x_shift / self.pixel_scale.value,
-                remaining_y_shift / self.pixel_scale.value,
+                remaining_x_shift / self.pixel_scale_arcsec.value,
+                remaining_y_shift / self.pixel_scale_arcsec.value,
             )
 
         return psf
@@ -463,12 +467,16 @@ class OffAx:
         if isinstance(x, Quantity):
             # Convert the x and y positions to lambda/D if they are in pixels
             if x.unit != lod:
-                x = convert_to_lod(x, self.center_x, self.pixel_scale, lam, D, dist)
+                x = convert_to_lod(
+                    x, self.center_x, self.pixel_scale_arcsec, lam, D, dist
+                )
             else:
                 x = x.value
         if isinstance(y, Quantity):
             if y.unit != lod:
-                y = convert_to_lod(y, self.center_y, self.pixel_scale, lam, D, dist)
+                y = convert_to_lod(
+                    y, self.center_y, self.pixel_scale_arcsec, lam, D, dist
+                )
             else:
                 y = y.value
         # For each x[i], we create a column of identical x-values and the full y-array.
@@ -523,11 +531,15 @@ class OffAx:
         if isinstance(x, Quantity):
             # Convert the x and y positions to lambda/D if they are in pixels
             if x.unit != lod:
-                x = convert_to_lod(x, self.center_x, self.pixel_scale, lam, D, dist)
+                x = convert_to_lod(
+                    x, self.center_x, self.pixel_scale_arcsec, lam, D, dist
+                )
             x = x.value
         if isinstance(y, Quantity):
             if y.unit != lod:
-                y = convert_to_lod(y, self.center_y, self.pixel_scale, lam, D, dist)
+                y = convert_to_lod(
+                    y, self.center_y, self.pixel_scale_arcsec, lam, D, dist
+                )
             y = y.value
 
         if np.isscalar(x) and np.isscalar(y):

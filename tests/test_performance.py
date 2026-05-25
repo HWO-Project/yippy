@@ -55,7 +55,7 @@ class TestOversamplePSF:
         psf = np.exp(-((y - c) ** 2 + (x - c) ** 2) / (2 * 3.0**2))
         psf /= psf.sum()
 
-        psf_os = _oversample_psf(psf, pixel_scale=0.3, oversample=3)
+        psf_os = _oversample_psf(psf, pixel_scale_arcsec=0.3, oversample=3)
 
         # Shape should be 3x in each dimension
         assert psf_os.shape == (96, 96)
@@ -65,7 +65,7 @@ class TestOversamplePSF:
     def test_no_negative_values(self):
         """Output should have no negative values."""
         psf = np.random.RandomState(42).rand(16, 16) - 0.3  # has negatives
-        psf_os = _oversample_psf(psf, pixel_scale=0.5, oversample=2)
+        psf_os = _oversample_psf(psf, pixel_scale_arcsec=0.5, oversample=2)
         assert np.all(psf_os >= 0)
 
 

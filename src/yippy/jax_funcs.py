@@ -100,7 +100,7 @@ def get_near_inds_offsets_1D(
 def create_avg_psf_1D(
     x: float,
     y: float,
-    pixel_scale: float,
+    pixel_scale_arcsec: float,
     x_offsets: jnp.ndarray,
     y_offsets: jnp.ndarray,
     x_grid: jnp.ndarray,
@@ -117,7 +117,7 @@ def create_avg_psf_1D(
 
     near_psfs = reshaped_psfs[near_inds[:, 0], near_inds[:, 1]]
 
-    near_shifts = (jnp.array([_x, _y]) - near_offsets) / pixel_scale
+    near_shifts = (jnp.array([_x, _y]) - near_offsets) / pixel_scale_arcsec
     near_diffs = jnp.linalg.norm(near_shifts, axis=1)
     sigma = 0.25
     # Adding a small value to avoid division by zero
@@ -160,7 +160,7 @@ def create_avg_psf_1D(
 def create_avg_psf_2DQ(
     x: float,
     y: float,
-    pixel_scale: float,
+    pixel_scale_arcsec: float,
     x_offsets: jnp.ndarray,
     y_offsets: jnp.ndarray,
     x_grid: jnp.ndarray,
@@ -177,7 +177,7 @@ def create_avg_psf_2DQ(
 
     near_psfs = reshaped_psfs[near_inds[:, 0], near_inds[:, 1]]
 
-    near_shifts = (jnp.array([_x, _y]) - near_offsets) / pixel_scale
+    near_shifts = (jnp.array([_x, _y]) - near_offsets) / pixel_scale_arcsec
     near_diffs = jnp.linalg.norm(near_shifts, axis=1)
     sigma = 0.25
     # Adding a small value to avoid division by zero
@@ -348,47 +348,47 @@ def convert_xy_2D(x, y):
     return x, y
 
 
-def basic_shift_val(input_val, converted_val, pixel_scale):
+def basic_shift_val(input_val, converted_val, pixel_scale_arcsec):
     """Calculates the shift in pixels for a basic shift."""
-    return (input_val - converted_val) / pixel_scale
+    return (input_val - converted_val) / pixel_scale_arcsec
 
 
-def sym_shift_val(input_val, converted_val, pixel_scale):
+def sym_shift_val(input_val, converted_val, pixel_scale_arcsec):
     """Calculates the shift in pixels for a symmetric shift."""
     sign = jnp.where(input_val >= 0, 1.0, -1.0)
-    return (input_val - sign * converted_val) / pixel_scale
+    return (input_val - sign * converted_val) / pixel_scale_arcsec
 
 
-def x_basic_shift(input_val, converted_val, PSF, pixel_scale, x_phasor):
+def x_basic_shift(input_val, converted_val, PSF, pixel_scale_arcsec, x_phasor):
     """Shifts the PSF to the specified x position."""
-    shift = basic_shift_val(input_val, converted_val, pixel_scale)
+    shift = basic_shift_val(input_val, converted_val, pixel_scale_arcsec)
     return fft_shift_x(PSF, shift, x_phasor)
 
 
-def y_basic_shift(input_val, converted_val, PSF, pixel_scale, y_phasor):
+def y_basic_shift(input_val, converted_val, PSF, pixel_scale_arcsec, y_phasor):
     """Shifts the PSF to the specified y position."""
-    shift = basic_shift_val(input_val, converted_val, pixel_scale)
+    shift = basic_shift_val(input_val, converted_val, pixel_scale_arcsec)
     return fft_shift_y(PSF, shift, y_phasor)
 
 
-def x_symmetric_shift(input_val, converted_val, PSF, pixel_scale, x_phasor):
+def x_symmetric_shift(input_val, converted_val, PSF, pixel_scale_arcsec, x_phasor):
     """Shifts the PSF to the specified position assuming symmetry about x=0."""
     # Apply a horizontal flip if the input value is negative
     _PSF = jnp.where(input_val < 0, jnp.fliplr(PSF), PSF)
 
     # Calculate the distance to shift the PSF
-    shift = sym_shift_val(input_val, converted_val, pixel_scale)
+    shift = sym_shift_val(input_val, converted_val, pixel_scale_arcsec)
     # Apply the shift
     return fft_shift_x(_PSF, shift, x_phasor)
 
 
-def y_symmetric_shift(input_val, converted_val, PSF, pixel_scale, y_phasor):
+def y_symmetric_shift(input_val, converted_val, PSF, pixel_scale_arcsec, y_phasor):
     """Shifts the PSF to the specified position assuming symmetry about y=0."""
     # Apply a vertical flip if the input value is negative
     _PSF = jnp.where(input_val < 0, jnp.flipud(PSF), PSF)
 
     # Get the distance to shift the PSF
-    shift = sym_shift_val(input_val, converted_val, pixel_scale)
+    shift = sym_shift_val(input_val, converted_val, pixel_scale_arcsec)
     # Apply the shift
     return fft_shift_y(_PSF, shift, y_phasor)
 
@@ -666,7 +666,7 @@ def rot90_traceable(m, k=1, axes=(0, 1)):
 def synthesize_psf_separable(
     x,
     y,
-    pixel_scale,
+    pixel_scale_arcsec,
     flat_psfs,
     x_offsets,
     y_offsets,
@@ -689,7 +689,7 @@ def synthesize_psf_separable(
             X coordinate in lambda/D.
         y (float):
             Y coordinate in lambda/D.
-        pixel_scale (float):
+        pixel_scale_arcsec (float):
             Pixel scale in lambda/D per pixel.
         flat_psfs (jnp.ndarray):
             Flat array of PSFs with shape (N_psfs, H, W).
@@ -805,8 +805,8 @@ def synthesize_psf_separable(
         )
 
     # Calculate Shift (in pixels)
-    shift_x = (x - eff_offsets_x) / pixel_scale
-    shift_y = (y - eff_offsets_y) / pixel_scale
+    shift_x = (x - eff_offsets_x) / pixel_scale_arcsec
+    shift_y = (y - eff_offsets_y) / pixel_scale_arcsec
 
     # Pad (using consistent n_pad from init)
     # (K, H, W) -> (K, H_pad, W_pad)
@@ -868,7 +868,7 @@ def synthesize_psf_separable(
 def synthesize_psf_idw(
     x,
     y,
-    pixel_scale,
+    pixel_scale_arcsec,
     flat_psfs,
     flat_x_offsets,
     flat_y_offsets,
@@ -938,8 +938,8 @@ def synthesize_psf_idw(
         eff_offsets_y = jnp.where(y < 0, -eff_offsets_y, eff_offsets_y)
 
     # Calculate Shift (in pixels)
-    shift_x = (x - eff_offsets_x) / pixel_scale
-    shift_y = (y - eff_offsets_y) / pixel_scale
+    shift_x = (x - eff_offsets_x) / pixel_scale_arcsec
+    shift_y = (y - eff_offsets_y) / pixel_scale_arcsec
 
     # Pad and FFT (Standard Shift Logic)
     pad_width = ((0, 0), (n_pad, n_pad), (n_pad, n_pad))

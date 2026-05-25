@@ -100,7 +100,8 @@ class Coronagraph:
             downsample_shape (tuple[int, int] | None):
                 Optional target shape (ny, nx) to downsample PSFs to. If provided,
                 all PSFs will be resampled to this shape immediately after loading,
-                conserving total flux. The pixel_scale will be updated accordingly.
+                conserving total flux. The pixel_scale_arcsec will be updated
+                accordingly.
                 Default is None (no downsampling).
             aperture_radius_lod (float):
                 Aperture radius in lambda/D for throughput and contrast calculations.
@@ -143,7 +144,7 @@ class Coronagraph:
 
         # Get pixel scale with units
         self.header = HeaderData.from_fits_header(stellar_intens_header)
-        self.pixel_scale = self.header.pixscale
+        self.pixel_scale_arcsec = self.header.pixscale
         self.frac_obscured = self.header.obscured
 
         # Optionally use inscribed diameter for lam/D calculations (AYO compatibility)
@@ -178,15 +179,15 @@ class Coronagraph:
             yip_path,
             offax_data_file,
             offax_offsets_file,
-            self.pixel_scale,
+            self.pixel_scale_arcsec,
             x_symmetric,
             y_symmetric,
             downsample_shape=downsample_shape,
         )
 
-        # Update pixel_scale if downsampling was applied
+        # Update pixel_scale_arcsec if downsampling was applied
         if downsample_shape is not None:
-            self.pixel_scale = self.offax.pixel_scale
+            self.pixel_scale_arcsec = self.offax.pixel_scale_arcsec
 
         # Get the sky_trans mask
         self.sky_trans = SkyTrans(yip_path, sky_trans_file)
@@ -270,14 +271,14 @@ class Coronagraph:
                 pixel_lod = (
                     (np.arange(self.npixels) - ((self.npixels - 1) // 2))
                     * u.pixel
-                    * self.pixel_scale
+                    * self.pixel_scale_arcsec
                 ).value
             else:
                 center_idx = (self.npixels - 1) // 2
                 pixel_lod = (
                     (np.arange(center_idx, self.npixels) - center_idx)
                     * u.pixel
-                    * self.pixel_scale
+                    * self.pixel_scale_arcsec
                 ).value
             n_src = len(pixel_lod)
             psfs_shape = (n_src, n_src, *self.psf_shape)
@@ -368,14 +369,14 @@ class Coronagraph:
                 pixel_lod = (
                     (np.arange(self.npixels) - ((self.npixels - 1) // 2))
                     * u.pixel
-                    * self.pixel_scale
+                    * self.pixel_scale_arcsec
                 ).value
             else:
                 center_idx = (self.npixels - 1) // 2
                 pixel_lod = (
                     (np.arange(center_idx, self.npixels) - center_idx)
                     * u.pixel
-                    * self.pixel_scale
+                    * self.pixel_scale_arcsec
                 ).value
 
             n_src = len(pixel_lod)
@@ -524,10 +525,10 @@ class Coronagraph:
         .. deprecated:: Use :func:`yippy.performance.compute_radial_average`.
         """
         sep_lod, profile = compute_radial_average(
-            image, self.pixel_scale.value, center=center, nbins=nbins
+            image, self.pixel_scale_arcsec.value, center=center, nbins=nbins
         )
         # Original returned pixel-unit bin_centers; convert back
-        bin_centers_pix = sep_lod / self.pixel_scale.value
+        bin_centers_pix = sep_lod / self.pixel_scale_arcsec.value
         return bin_centers_pix, profile
 
     def _plot_performance_curve(
@@ -871,7 +872,7 @@ class Coronagraph:
         cy = self.header.ycenter
         y, x = np.mgrid[:npix, :npix]
         r_pix = np.sqrt((x - cx) ** 2 + (y - cy) ** 2)
-        return r_pix * self.pixel_scale.value
+        return r_pix * self.pixel_scale_arcsec.value
 
     def core_mean_intensity_map(self, stellar_diam=0.0 * lod):
         """Azimuthally averaged stellar intensity projected onto the pixel grid.

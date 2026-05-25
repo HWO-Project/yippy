@@ -12,7 +12,7 @@ from lod_unit import lod, lod_eq
 
 
 def convert_to_lod(
-    x: Quantity, center_pix=None, pixel_scale=None, lam=None, D=None, dist=None
+    x: Quantity, center_pix=None, pixel_scale_arcsec=None, lam=None, D=None, dist=None
 ) -> Quantity:
     """Convert the x/y position to lambda/D.
 
@@ -29,7 +29,7 @@ def convert_to_lod(
             or a length unit (e.g. AU)
         center_pix (astropy.units.Quantity):
             Center of the image in pixels (for the relevant axis)
-        pixel_scale (astropy.units.Quantity):
+        pixel_scale_arcsec (astropy.units.Quantity):
             Pixel scale of in
         lam (astropy.units.Quantity):
             Wavelength of the observation
@@ -42,15 +42,15 @@ def convert_to_lod(
         assert center_pix is not None, (
             "Center pixel must be provided to convert pixel to lod."
         )
-        assert pixel_scale is not None, (
+        assert pixel_scale_arcsec is not None, (
             "Pixel scale must be provided to convert pixel to lod."
         )
-        assert pixel_scale.unit == (lod / u.pix), (
-            f"Pixel scale must be in units of lod/pix, not {pixel_scale.unit}."
+        assert pixel_scale_arcsec.unit == (lod / u.pix), (
+            f"Pixel scale must be in units of lod/pix, not {pixel_scale_arcsec.unit}."
         )
 
         x = x - center_pix
-        x = x * pixel_scale
+        x = x * pixel_scale_arcsec
         # Center the x position
     elif x.unit.physical_type == "angle":
         assert lam is not None, (
@@ -75,7 +75,7 @@ def convert_to_lod(
 
 
 def convert_to_pix(
-    x: Quantity, center_pix, pixel_scale, lam=None, D=None, dist=None
+    x: Quantity, center_pix, pixel_scale_arcsec, lam=None, D=None, dist=None
 ) -> Quantity:
     """Convert the x/y position from lambda/D to pixel units.
 
@@ -93,7 +93,7 @@ def convert_to_pix(
         center_pix (astropy.units.Quantity, optional):
             Center of the image in pixels (for the relevant axis). Required if
             converting to pixel units.
-        pixel_scale (astropy.units.Quantity, optional):
+        pixel_scale_arcsec (astropy.units.Quantity, optional):
             Pixel scale in units of lambda/D per pixel. Required if converting to
             pixel units.
         lam (astropy.units.Quantity, optional):
@@ -119,10 +119,10 @@ def convert_to_pix(
     """
     if isinstance(x, float) or isinstance(x, np.floating):
         # Assume x is a float in lambda/D
-        x_pixels = x * lod / pixel_scale + center_pix
+        x_pixels = x * lod / pixel_scale_arcsec + center_pix
     elif x.unit == lod:
         # Center the x position
-        x_pixels = x / pixel_scale + center_pix
+        x_pixels = x / pixel_scale_arcsec + center_pix
 
     elif x.unit.physical_type == "angle":
         # Conversion from angle to pixels
@@ -136,7 +136,7 @@ def convert_to_pix(
         # Convert angle to lambda/D
         x_lod = x.to(u.rad, lod_eq(lam, D))
         # Now convert lambda/D to pixels
-        x_pixels = x_lod / pixel_scale + center_pix
+        x_pixels = x_lod / pixel_scale_arcsec + center_pix
 
     elif x.unit.physical_type == "length":
         # Conversion from length to pixels
@@ -155,7 +155,7 @@ def convert_to_pix(
         # Convert angle to lambda/D
         x_lod = x_angle.to(lod, lod_eq(lam, D))
         # Now convert lambda/D to pixels
-        x_pixels = x_lod / pixel_scale + center_pix
+        x_pixels = x_lod / pixel_scale_arcsec + center_pix
 
     else:
         raise ValueError(f"No conversion implemented for {x.unit.physical_type}")

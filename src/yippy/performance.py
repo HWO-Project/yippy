@@ -82,10 +82,10 @@ def _iter_xaxis_positions(coro: Coronagraph):
         if planet_psf is None:
             continue
         px = convert_to_pix(
-            x_lod_val, coro.offax.center_x, coro.pixel_scale
+            x_lod_val, coro.offax.center_x, coro.pixel_scale_arcsec
         ).value.astype(int)
         py = convert_to_pix(
-            y_lod_val, coro.offax.center_y, coro.pixel_scale
+            y_lod_val, coro.offax.center_y, coro.pixel_scale_arcsec
         ).value.astype(int)
         yield OffAxisPosition(separation=r, psf=planet_psf, px=px, py=py)
 
@@ -104,7 +104,9 @@ def _point_source_in_image(pos: OffAxisPosition) -> bool:
     return 0 <= pos.px < nx and 0 <= pos.py < ny
 
 
-def _oversample_psf(psf: np.ndarray, pixel_scale: float, oversample: int) -> np.ndarray:
+def _oversample_psf(
+    psf: np.ndarray, pixel_scale_arcsec: float, oversample: int
+) -> np.ndarray:
     """Oversample a PSF using flux-conserving resampling.
 
     Uses ``resample_flux`` from hwoutils which converts to surface brightness
@@ -113,19 +115,19 @@ def _oversample_psf(psf: np.ndarray, pixel_scale: float, oversample: int) -> np.
 
     Args:
         psf: 2D PSF image.
-        pixel_scale: Pixel scale of the input PSF (lam/D per pixel).
+        pixel_scale_arcsec: Pixel scale of the input PSF (lam/D per pixel).
         oversample: Oversampling factor.
 
     Returns:
         Oversampled PSF with flux conserved and negative values clamped.
     """
-    os_pix = pixel_scale / oversample
+    os_pix = pixel_scale_arcsec / oversample
     ny_os = psf.shape[0] * oversample
     nx_os = psf.shape[1] * oversample
     psf_os = np.asarray(
         resample_flux(
             jnp.asarray(np.asarray(psf, dtype=np.float64)),
-            pixel_scale,
+            pixel_scale_arcsec,
             os_pix,
             (ny_os, nx_os),
         )
@@ -217,7 +219,7 @@ def compute_radial_average(
         kwargs["nbins"] = nbins
     seps, prof = radial_profile(
         jnp.asarray(np.asarray(image, dtype=np.float64)),
-        pixel_scale=pixel_scale_value,
+        pixel_scale_arcsec=pixel_scale_value,
         **kwargs,
     )
     return np.asarray(seps), np.asarray(prof)
@@ -264,7 +266,7 @@ def compute_throughput_curve(
         ``(separations, throughputs)`` - sorted 1-D arrays.
     """
     separations, throughputs = [], []
-    radius_pix = aperture_radius_lod / coro.pixel_scale.value
+    radius_pix = aperture_radius_lod / coro.pixel_scale_arcsec.value
 
     for pos in _iter_xaxis_positions(coro):
         if not _point_source_in_image(pos):
@@ -308,7 +310,7 @@ def compute_raw_contrast_curve(
     """
     star_psf = coro.stellar_intens(stellar_diam)
     separations, contrasts = [], []
-    radius_pix = aperture_radius_lod / coro.pixel_scale.value
+    radius_pix = aperture_radius_lod / coro.pixel_scale_arcsec.value
 
     for pos in _iter_xaxis_positions(coro):
         if not _point_source_in_image(pos):
@@ -387,7 +389,7 @@ def compute_core_area_curve(
                 pos.psf,
                 pos.px,
                 pos.py,
-                aperture_radius_lod / coro.pixel_scale.value * 3,
+                aperture_radius_lod / coro.pixel_scale_arcsec.value * 3,
                 oversample,
             )
             y_grid, x_grid = np.indices(sub_os.shape)
@@ -400,8 +402,8 @@ def compute_core_area_curve(
                 p0=[amplitude, px_os, py_os, sigma_init, sigma_init],
             )
             _, _, _, sigma_x, sigma_y = popt
-            sigma_x_lod = sigma_x / oversample * coro.pixel_scale.value
-            sigma_y_lod = sigma_y / oversample * coro.pixel_scale.value
+            sigma_x_lod = sigma_x / oversample * coro.pixel_scale_arcsec.value
+            sigma_y_lod = sigma_y / oversample * coro.pixel_scale_arcsec.value
             fwhm_x = GAUSSIAN_FWHM_FACTOR * sigma_x_lod
             fwhm_y = GAUSSIAN_FWHM_FACTOR * sigma_y_lod
             area = np.pi * fwhm_x * fwhm_y / 4
@@ -438,7 +440,7 @@ def compute_truncation_throughput_curve(
     Returns:
         ``(separations, throughputs)`` - sorted 1-D arrays.
     """
-    pix_lod = coro.pixel_scale.value
+    pix_lod = coro.pixel_scale_arcsec.value
     if oversample is None:
         oversample = int(np.ceil(pix_lod / 0.05))
 
@@ -474,7 +476,7 @@ def compute_truncation_core_area_curve(
     Returns:
         ``(separations, core_areas)`` - sorted 1-D arrays, area in (lam/D)^2.
     """
-    pix_lod = coro.pixel_scale.value
+    pix_lod = coro.pixel_scale_arcsec.value
     if oversample is None:
         oversample = int(np.ceil(pix_lod / 0.05))
 
@@ -509,7 +511,7 @@ def compute_occ_trans_curve(
         ``(separations_lod, occ_trans)`` - 1-D arrays.
     """
     sky_trans_data = coro.sky_trans()
-    return compute_radial_average(sky_trans_data, coro.pixel_scale.value)
+    return compute_radial_average(sky_trans_data, coro.pixel_scale_arcsec.value)
 
 
 def compute_core_mean_intensity_curve(
@@ -539,7 +541,7 @@ def compute_core_mean_intensity_curve(
                 )
 
     center = (coro.stellar_intens.center_y, coro.stellar_intens.center_x)
-    pix_scale = coro.pixel_scale.value
+    pix_scale = coro.pixel_scale_arcsec.value
 
     # Use the first diameter to determine bin count
     stellar_psf = coro.stellar_intens(stellar_diam_values[0])
@@ -552,7 +554,7 @@ def compute_core_mean_intensity_curve(
         psf = coro.stellar_intens(diam)
         seps, profile = radial_profile(
             jnp.asarray(np.asarray(psf, dtype=np.float64)),
-            pixel_scale=pix_scale,
+            pixel_scale_arcsec=pix_scale,
             center=center,
             nbins=nbins,
         )

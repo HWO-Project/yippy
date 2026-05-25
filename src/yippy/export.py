@@ -46,7 +46,7 @@ def _save_to_exosims_format(
 
     # Base header from coronagraph parameters
     base_header = pyfits.Header()
-    base_header["PIXSCALE"] = (coro.pixel_scale.value, "Angular pixel scale")
+    base_header["PIXSCALE"] = (coro.pixel_scale_arcsec.value, "Angular pixel scale")
     base_header["LAMBDA"] = (coro.header.lambda0.value, "Wavelength in micrometers")
     base_header["D"] = (coro.header.diameter.value, "Telescope diameter in meters")
     base_header["OBSCURED"] = (coro.header.obscured, "Obscuration fraction")
@@ -208,7 +208,7 @@ def export_exosims(
     # Occulter transmission
     sky_trans_data = coro.sky_trans()
     sep_occ_trans, occ_trans = compute_radial_average(
-        sky_trans_data, coro.pixel_scale.value
+        sky_trans_data, coro.pixel_scale_arcsec.value
     )
 
     # Core mean intensity
@@ -227,7 +227,7 @@ def export_exosims(
     max_radius = np.max(r)
     bins = np.linspace(0, max_radius, nbins + 1)
     bin_centers = (bins[1:] + bins[:-1]) / 2
-    sep_core_intensity = bin_centers * coro.pixel_scale.value
+    sep_core_intensity = bin_centers * coro.pixel_scale_arcsec.value
 
     # Write FITS files
     _save_to_exosims_format(

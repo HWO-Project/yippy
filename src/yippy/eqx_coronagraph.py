@@ -167,7 +167,7 @@ class EqxCoronagraph(eqx.Module):
             )
 
         # -- Scalar metadata ---------------------------------------------
-        self.pixel_scale_lod = float(yippy_coro.pixel_scale.value)
+        self.pixel_scale_lod = float(yippy_coro.pixel_scale_arcsec.value)
         self.psf_shape = tuple(map(int, yippy_coro.psf_shape))
         self.center_x = float(yippy_coro.offax.center_x.value)
         self.center_y = float(yippy_coro.offax.center_y.value)
