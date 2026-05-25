@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.3](https://github.com/CoreySpohn/yippy/compare/v2.8.2...v2.8.3) (2026-05-25)
+
+
+### Bug Fixes
+
+* Update to match API changes and naming standards ([678171d](https://github.com/CoreySpohn/yippy/commit/678171d4e1dfa7ee855ae418d2c83ded71ce7ba9))
+
 ## [2.8.2](https://github.com/CoreySpohn/yippy/compare/v2.8.1...v2.8.2) (2026-05-25)
 
 
