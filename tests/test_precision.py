@@ -1,0 +1,21 @@
+"""Precision policy: yippy follows the global jax_enable_x64 flag (default float32).
+
+The default test process runs x64-off, so these assert the float32 behavior. The
+float64 mirror lives in ``test_precision_x64.py``. Both exercise the ``_precision``
+helpers through real yippy code (cache filename + stored EqxCoronagraph arrays),
+so a dedicated unit test of the trivial helpers would be redundant.
+"""
+
+from conftest import assert_eqx_arrays_match_active_dtype
+
+
+def test_datacube_cache_path_is_dtype_keyed(coro):
+    """The PSF datacube cache filename carries the active dtype tag (f32 default)."""
+    p = coro._datacube_cache_path
+    assert p.name == "psf_datacube_quarter_f32.npy"
+    assert p.parent == coro._cache_dir
+
+
+def test_eqx_stored_arrays_are_f32_by_default(eqx_coro):
+    """In the default (x64-off) suite, EqxCoronagraph float arrays are float32."""
+    assert_eqx_arrays_match_active_dtype(eqx_coro)

@@ -10,6 +10,7 @@ import numpy as np
 from lod_unit import lod
 from tqdm import tqdm
 
+from ._precision import dtype_tag, float_dtype
 from ._version import __version__
 from .export import export_ayo_csv
 from .header import HeaderData
@@ -259,14 +260,14 @@ class Coronagraph:
         if backend in ("gpu", "tpu"):
             return self._create_psf_datacube_gpu(batch_size=batch_size)
         ext = "_quarter" if self.use_quarter_psf_datacube else ""
-        datacube_path = self._cache_dir / f"psf_datacube{ext}.npy"
+        datacube_path = self._datacube_cache_path
         if datacube_path.exists():
             logger.info(f"Loading PSF datacube from {datacube_path}.")
-            psfs = jnp.load(datacube_path)
+            psfs = jnp.asarray(jnp.load(datacube_path))
         else:
             # Create data cube of spatially dependent PSFs.
             psfs_shape = (*self.psf_shape, *self.psf_shape)
-            psfs = np.zeros(psfs_shape, dtype=np.float32)
+            psfs = np.zeros(psfs_shape, dtype=float_dtype())
             if not self.use_quarter_psf_datacube:
                 pixel_lod = (
                     (np.arange(self.npixels) - ((self.npixels - 1) // 2))
@@ -282,7 +283,7 @@ class Coronagraph:
                 ).value
             n_src = len(pixel_lod)
             psfs_shape = (n_src, n_src, *self.psf_shape)
-            psfs = np.zeros(psfs_shape, dtype=np.float32)
+            psfs = np.zeros(psfs_shape, dtype=float_dtype())
 
             # Get the pixel coordinates for the PSF evaluations
             x_lod, y_lod = np.meshgrid(pixel_lod, pixel_lod, indexing="xy")
@@ -329,7 +330,7 @@ class Coronagraph:
                 # Note: avoid jnp.array() on existing JAX array to prevent copy
                 try:
                     if not isinstance(psfs, jax.Array):
-                        psfs = jnp.asarray(psfs, dtype=jnp.float32)
+                        psfs = jnp.asarray(psfs)
                     psfs = jax.device_put(psfs, target_device)
                     logger.info(
                         f"Successfully moved PSF datacube to {backend.upper()} device"
@@ -360,10 +361,10 @@ class Coronagraph:
                 Number of PSFs to generate per batch. Default is 128.
         """
         ext = "_quarter" if self.use_quarter_psf_datacube else ""
-        datacube_path = self._cache_dir / f"psf_datacube{ext}.npy"
+        datacube_path = self._datacube_cache_path
         if datacube_path.exists():
             logger.info(f"Loading PSF datacube from {datacube_path}.")
-            psfs = jnp.load(datacube_path)
+            psfs = jnp.asarray(jnp.load(datacube_path))
         else:
             if not self.use_quarter_psf_datacube:
                 pixel_lod = (
@@ -396,7 +397,7 @@ class Coronagraph:
             # Avoids a silent jnp.concatenate corruption observed on some GPUs
             # (e.g. Blackwell / RTX PRO 6000) when aggregating many GPU buffers
             # before save.
-            psfs = np.empty(psfs_shape, dtype=np.float32)
+            psfs = np.empty(psfs_shape, dtype=float_dtype())
             flat_view = psfs.reshape(-1, self.npixels, self.npixels)
             with tqdm(total=n_points, desc="Computing PSFs") as pb:
                 for i in range(0, n_points, batch_size):
@@ -411,7 +412,7 @@ class Coronagraph:
 
         target_device = jax.devices()[0]
         if not (hasattr(psfs, "devices") and target_device in psfs.devices()):
-            psfs = jax.device_put(jnp.asarray(psfs, dtype=jnp.float32), target_device)
+            psfs = jax.device_put(jnp.asarray(psfs), target_device)
             logger.info(f"PSF datacube on {jax.default_backend().upper()} device")
 
         self.has_psf_datacube = True
@@ -455,6 +456,12 @@ class Coronagraph:
         d = self.yip_path / "yippy_cache"
         d.mkdir(exist_ok=True)
         return d
+
+    @property
+    def _datacube_cache_path(self) -> Path:
+        """PSF datacube cache file, keyed by quarter/full and active float dtype."""
+        ext = "_quarter" if self.use_quarter_psf_datacube else ""
+        return self._cache_dir / f"psf_datacube{ext}_{dtype_tag()}.npy"
 
     @property
     def _perf_dir(self) -> Path:
