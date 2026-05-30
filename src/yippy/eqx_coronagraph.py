@@ -35,11 +35,11 @@ from pathlib import Path
 
 import equinox as eqx
 import interpax
-import jax
 import jax.numpy as jnp
 import numpy as np
 from jaxtyping import Array
 
+from ._precision import float_dtype
 from .coronagraph import Coronagraph
 
 
@@ -183,10 +183,12 @@ class EqxCoronagraph(eqx.Module):
         self.create_psfs = yippy_coro.offax.create_psfs
 
         # -- Stellar intensity interpolation -----------------------------
+        # FITS-sourced arrays are big-endian (>f8); jnp cannot ingest those, so
+        # an explicit dtype both byte-swaps to native and follows the x64 flag.
         stellar = yippy_coro.stellar_intens
-        stellar_diams = jnp.asarray(stellar.diams.value, dtype=jnp.float32)
+        stellar_diams = jnp.asarray(stellar.diams.value, dtype=float_dtype())
         # Convert stellar PSFs to JAX arrays and build log-space interpolator
-        stellar_psfs = jnp.asarray(stellar.psfs, dtype=jnp.float32)
+        stellar_psfs = jnp.asarray(stellar.psfs, dtype=float_dtype())
         self._stellar_ln_interp = interpax.CubicSpline(
             stellar_diams, jnp.log(stellar_psfs)
         )
@@ -204,9 +206,9 @@ class EqxCoronagraph(eqx.Module):
         if yippy_coro.core_intensity_interp_2d is not None:
             rgi = yippy_coro.core_intensity_interp_2d
             # RegularGridInterpolator stores grid points in .grid
-            sep_knots = jnp.asarray(rgi.grid[0], dtype=jnp.float32)
-            diam_knots = jnp.asarray(rgi.grid[1], dtype=jnp.float32)
-            values_2d = jnp.asarray(rgi.values, dtype=jnp.float32)
+            sep_knots = jnp.asarray(rgi.grid[0], dtype=float_dtype())
+            diam_knots = jnp.asarray(rgi.grid[1], dtype=float_dtype())
+            values_2d = jnp.asarray(rgi.values, dtype=float_dtype())
             self._core_mean_intensity_interp_2d = interpax.Interpolator2D(
                 sep_knots,
                 diam_knots,
@@ -220,17 +222,16 @@ class EqxCoronagraph(eqx.Module):
             self._has_2d_core_intensity = False
 
         # -- Sky transmission --------------------------------------------
-        self.sky_trans = jnp.asarray(yippy_coro.sky_trans(), dtype=jnp.float32)
+        self.sky_trans = jnp.asarray(yippy_coro.sky_trans(), dtype=float_dtype())
 
         # -- Optional PSF datacube ---------------------------------------
         if ensure_psf_datacube:
             if not yippy_coro.has_psf_datacube:
                 yippy_coro.create_psf_datacube()
             datacube = yippy_coro.psf_datacube
-            if isinstance(datacube, jax.Array) and datacube.dtype == jnp.float32:
-                self.psf_datacube = datacube
-            else:
-                self.psf_datacube = jnp.asarray(datacube, dtype=jnp.float32)
+            # jnp.asarray canonicalizes to the active float dtype and is a no-op
+            # when the cube already matches (no copy).
+            self.psf_datacube = jnp.asarray(datacube)
             # Release reference in yippy to avoid duplicate storage
             yippy_coro.psf_datacube = None
         else:
@@ -387,8 +388,8 @@ def _scipy_to_interpax(scipy_spline):
     y_np = scipy_spline(x_np)
 
     # Convert to JAX arrays
-    x_jax = jnp.asarray(x_np, dtype=jnp.float32)
-    y_jax = jnp.asarray(y_np, dtype=jnp.float32)
+    x_jax = jnp.asarray(x_np, dtype=float_dtype())
+    y_jax = jnp.asarray(y_np, dtype=float_dtype())
 
     if k <= 1:
         return interpax.Interpolator1D(x_jax, y_jax, method="linear", extrap=True)

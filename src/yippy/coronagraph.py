@@ -263,7 +263,7 @@ class Coronagraph:
         datacube_path = self._datacube_cache_path
         if datacube_path.exists():
             logger.info(f"Loading PSF datacube from {datacube_path}.")
-            psfs = jnp.asarray(jnp.load(datacube_path), dtype=float_dtype())
+            psfs = jnp.asarray(jnp.load(datacube_path))
         else:
             # Create data cube of spatially dependent PSFs.
             psfs_shape = (*self.psf_shape, *self.psf_shape)
@@ -330,7 +330,7 @@ class Coronagraph:
                 # Note: avoid jnp.array() on existing JAX array to prevent copy
                 try:
                     if not isinstance(psfs, jax.Array):
-                        psfs = jnp.asarray(psfs, dtype=float_dtype())
+                        psfs = jnp.asarray(psfs)
                     psfs = jax.device_put(psfs, target_device)
                     logger.info(
                         f"Successfully moved PSF datacube to {backend.upper()} device"
@@ -364,7 +364,7 @@ class Coronagraph:
         datacube_path = self._datacube_cache_path
         if datacube_path.exists():
             logger.info(f"Loading PSF datacube from {datacube_path}.")
-            psfs = jnp.asarray(jnp.load(datacube_path), dtype=float_dtype())
+            psfs = jnp.asarray(jnp.load(datacube_path))
         else:
             if not self.use_quarter_psf_datacube:
                 pixel_lod = (
@@ -412,7 +412,7 @@ class Coronagraph:
 
         target_device = jax.devices()[0]
         if not (hasattr(psfs, "devices") and target_device in psfs.devices()):
-            psfs = jax.device_put(jnp.asarray(psfs, dtype=float_dtype()), target_device)
+            psfs = jax.device_put(jnp.asarray(psfs), target_device)
             logger.info(f"PSF datacube on {jax.default_backend().upper()} device")
 
         self.has_psf_datacube = True

@@ -2,6 +2,7 @@
 
 import jax
 import numpy as np
+from conftest import assert_eqx_arrays_match_active_dtype
 
 from yippy import _precision as P
 
@@ -23,3 +24,8 @@ def test_datacube_cache_path_is_dtype_keyed(coro):
     p = coro._datacube_cache_path
     assert p.name == "psf_datacube_quarter_f32.npy"
     assert p.parent == coro._cache_dir
+
+
+def test_eqx_stored_arrays_are_f32_by_default(eqx_coro):
+    """In the default (x64-off) suite, EqxCoronagraph float arrays are float32."""
+    assert_eqx_arrays_match_active_dtype(eqx_coro)
