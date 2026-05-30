@@ -15,3 +15,11 @@ def test_float_dtype_is_f32_by_default():
 def test_dtype_tag_is_f32_by_default():
     """The cache tag is 'f32' when x64 is off."""
     assert P.dtype_tag() == "f32"
+
+
+def test_datacube_cache_path_is_dtype_keyed(coro):
+    """The PSF datacube cache filename carries the active dtype tag."""
+    # Default x64-off -> "f32" tag; quarter datacube is the default.
+    p = coro._datacube_cache_path
+    assert p.name == "psf_datacube_quarter_f32.npy"
+    assert p.parent == coro._cache_dir
