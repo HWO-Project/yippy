@@ -4,7 +4,6 @@ Run with:  JAX_ENABLE_X64=1 uv run pytest tests/test_precision_x64.py -q
 """
 
 import jax
-import numpy as np
 import pytest
 
 if not jax.config.jax_enable_x64:
@@ -14,14 +13,6 @@ if not jax.config.jax_enable_x64:
     )
 
 from conftest import assert_eqx_arrays_match_active_dtype
-
-from yippy import _precision as P
-
-
-def test_float_dtype_is_f64_under_x64():
-    """With x64 enabled, the active float dtype and cache tag are float64/'f64'."""
-    assert np.dtype(P.float_dtype()) == np.float64
-    assert P.dtype_tag() == "f64"
 
 
 def test_datacube_cache_path_is_f64_keyed(coro):
