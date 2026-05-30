@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.9.0](https://github.com/CoreySpohn/yippy/compare/v2.8.3...v2.9.0) (2026-05-30)
+
+
+### Features
+
+* **precision:** add float_dtype/dtype_tag helper following jax_enable_x64 ([2852d8a](https://github.com/CoreySpohn/yippy/commit/2852d8a35aa8d8c0c8d17ee0d0d246445a9ec746))
+* **precision:** datacube builder follows jax_enable_x64 and dtype-keys its cache ([5845b5a](https://github.com/CoreySpohn/yippy/commit/5845b5a63371c8e00b91db8a47f53edab351e961))
+* **precision:** EqxCoronagraph follows jax_enable_x64 via native canonicalization ([07cbbce](https://github.com/CoreySpohn/yippy/commit/07cbbcebaee8b3fc22f21fb214a7a6e33d91aad0))
+
 ## [2.8.3](https://github.com/CoreySpohn/yippy/compare/v2.8.2...v2.8.3) (2026-05-25)
 
 
