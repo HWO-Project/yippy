@@ -198,6 +198,27 @@ from yippy import cache_dir
 print(cache_dir())
 ```
 
+## Precision
+
+`yippy` follows JAX's global `jax_enable_x64` flag. The default is `float32`
+(JAX's default and the memory-friendly choice -- the PSF datacube dominates
+memory). For a uniform `float64` pipeline -- needed for high-fidelity work or
+backends that require double precision -- enable x64 *before* building a
+coronagraph:
+
+```python
+import jax
+jax.config.update("jax_enable_x64", True)  # or set JAX_ENABLE_X64=1 in the env
+
+from yippy import Coronagraph, EqxCoronagraph
+coro = EqxCoronagraph("/path/to/yip")       # now all arrays are float64
+```
+
+There is no per-object dtype option: precision is one global switch, so the
+whole pipeline stays a single dtype (JAX does not mix `float32` and `float64`
+cleanly). PSF datacube caches are dtype-keyed (`psf_datacube*_f32.npy` vs
+`*_f64.npy`), so float32 and float64 runs never share a cache.
+
 ## Units
 
 Yield input packages use $`\lambda / D`$ units so `yippy` treats them
