@@ -26,7 +26,7 @@
       "scheme": "doi"
     },
     {
-      "identifier": "https://github.com/CoreySpohn/yippy",
+      "identifier": "https://github.com/HWO-Project/yippy",
       "relation": "isSupplementTo",
       "scheme": "url"
     }

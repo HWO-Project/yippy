@@ -59,7 +59,7 @@ CACHE_DIR_ENV_VAR = "YIPPY_CACHE_DIR"
 # ---------------------------------------------------------------------------
 DATA_RELEASE_TAG: str = "data-v2"
 _DATA_BASE_URL: str = (
-    f"https://github.com/CoreySpohn/yippy/releases/download/{DATA_RELEASE_TAG}/"
+    f"https://github.com/HWO-Project/yippy/releases/download/{DATA_RELEASE_TAG}/"
 )
 
 
