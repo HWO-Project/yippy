@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.1](https://github.com/HWO-Project/yippy/compare/v2.9.0...v2.9.1) (2026-06-02)
+
+
+### Bug Fixes
+
+* Migrate to HWO-Project repo details ([485c99b](https://github.com/HWO-Project/yippy/commit/485c99b3ab8530da62d8bd8dec3ed3b7a245730b))
+
 ## [2.9.0](https://github.com/CoreySpohn/yippy/compare/v2.8.3...v2.9.0) (2026-05-30)
 
 
